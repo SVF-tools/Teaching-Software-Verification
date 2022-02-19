@@ -33,7 +33,7 @@ using namespace SVF;
 using namespace SVFUtil;
 
 
-int test_assing_3(int argc, char **argv) {
+int main(int argc, char **argv) {
     Z3ExampleMgr* z3Mgr = new Z3ExampleMgr(1000);
     int points = 0;
     int n = (argc == 1) ? 0 : atoi(argv[1]);

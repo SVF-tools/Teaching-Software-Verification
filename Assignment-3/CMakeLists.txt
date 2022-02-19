@@ -1,11 +1,13 @@
 llvm_map_components_to_libnames(llvm_libs bitwriter core ipo irreader instcombine instrumentation target linker analysis scalaropts support )
+
+include_directories(../include)
 file (GLOB SOURCES
    *.cpp
 )
-add_executable(sse ${SOURCES})
+add_executable(assign-3 ${SOURCES})
 
-target_link_libraries(sse ${SVF_LIB} ${LLVMCudd} ${llvm_libs})
-target_link_libraries(sse ${Z3_LIBRARIES})
+target_link_libraries(assign-3 ${SVF_LIB} ${LLVMCudd} ${llvm_libs})
+target_link_libraries(assign-3 ${Z3_LIBRARIES})
 
-set_target_properties(sse PROPERTIES
+set_target_properties(assign-3 PROPERTIES
                        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin )
