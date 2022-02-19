@@ -33,7 +33,7 @@ using namespace SVF;
 using namespace SVFUtil;
 
 
-int test_assing_2(int argc, char **argv)
+int main(int argc, char **argv)
 {
     int arg_num = 0;
     int extraArgc = 1;
