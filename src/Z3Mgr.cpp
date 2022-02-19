@@ -23,7 +23,7 @@
 //===-----------------------------------------------------------------------===//
 
 #include "Z3Mgr.h"
-#include "SVF-FE/SVFIRBuilder.h"
+#include "MemoryModel/SVFIR.h"
 #include <set>
 #include <iomanip>
 
