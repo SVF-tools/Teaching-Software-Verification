@@ -2,14 +2,14 @@ llvm_map_components_to_libnames(llvm_libs bitwriter core ipo irreader instcombin
 include_directories(../Assignment-2)
 include_directories(../Assignment-3)
 file (GLOB SOURCES
-   ../Assignment-2/ICFGTraversal.cpp
+   ../Assignment-2/Assignment-2.cpp
    ../Assignment-3/Z3Mgr.cpp
    *.cpp
 )
-add_executable(sse ${SOURCES})
+add_executable(assign-4 ${SOURCES})
 
-target_link_libraries(sse ${SVF_LIB} ${LLVMCudd} ${llvm_libs})
-target_link_libraries(sse ${Z3_LIBRARIES})
+target_link_libraries(assign-4 ${SVF_LIB} ${LLVMCudd} ${llvm_libs})
+target_link_libraries(assign-4 ${Z3_LIBRARIES})
 
-set_target_properties(sse PROPERTIES
+set_target_properties(assign-4 PROPERTIES
                        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin )
