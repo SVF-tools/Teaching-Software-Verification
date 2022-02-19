@@ -27,7 +27,6 @@
  */
 
 #include "ICFGTraversal.h"
-#include "WPA/Andersen.h"
 
 using namespace SVF;
 using namespace SVFUtil;
