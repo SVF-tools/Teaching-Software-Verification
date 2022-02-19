@@ -22,7 +22,7 @@
 //
 //===-----------------------------------------------------------------------===//
 
-#include "SSE.h"
+#include "Z3Mgr.h"
 #include "SVF-FE/SVFIRBuilder.h"
 #include <set>
 #include <iomanip>
