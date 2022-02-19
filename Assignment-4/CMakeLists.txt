@@ -1,9 +1,9 @@
 llvm_map_components_to_libnames(llvm_libs bitwriter core ipo irreader instcombine instrumentation target linker analysis scalaropts support )
 include_directories(../Assignment-2)
-include_directories(../Assignment-3)
+include_directories(../Z3Manager)
 file (GLOB SOURCES
    ../Assignment-2/Assignment-2.cpp
-   ../Assignment-3/Z3Mgr.cpp
+   ../Z3Manager/Z3Mgr.cpp
    *.cpp
 )
 add_executable(assign-4 ${SOURCES})

@@ -98,11 +98,12 @@ else()
     LINK_DIRECTORIES(${Z3_DIR}/bin)
 endif()
 
+add_subdirectory(HelloWorld)
+add_subdirectory(SVFIR)
 add_subdirectory(Assignment-1)
 add_subdirectory(Assignment-2)
 add_subdirectory(Assignment-3)
 add_subdirectory(Assignment-4)
-
 
 # checks if the test-suite is present, if it is then build bc files and add testing to cmake build
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Test-Suite")
