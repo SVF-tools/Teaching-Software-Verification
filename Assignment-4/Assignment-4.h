@@ -91,7 +91,7 @@ public:
     void resetSolver(){
         visited.clear();
         callstack.clear();
-        //solver.reset();
+        getSolver().reset();
     }        
 
     /// Return true if svf_assert check is successful

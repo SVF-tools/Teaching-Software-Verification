@@ -65,11 +65,11 @@ void ICFGTraversal::analyse()
     std::set<const ICFGNode *> sinks;
     for (const ICFGNode *src : identifySource(sources)) {
         assert(SVFUtil::isa<GlobalICFGNode>(src) && "dfs should start with GlobalICFGNode!");
-        handleIntra(new IntraCFGEdge(nullptr,const_cast<ICFGNode*>(src)));
         for (const ICFGNode *sink: identifySink(sinks)) {
+            handleIntra(new IntraCFGEdge(nullptr,const_cast<ICFGNode*>(src)));
             std::vector<const ICFGNode *> path;
-            resetSolver();
             dfs(path, src, sink);
+            resetSolver();
         }
     }
 }
