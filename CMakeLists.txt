@@ -72,9 +72,9 @@ if(CMAKE_BUILD_TYPE MATCHES "Debug")
                 )
         include_directories(${Z3_CXX_INCLUDE_DIRS})
     else()
-        find_library(Z3_LIBRARIES NAMES libz3.a libz3.so
+        find_library(Z3_LIBRARIES NAMES libz3.a
                 HINTS $ENV{Z3_DIR}
-                PATH_SUFFIXES bin)
+                PATH_SUFFIXES lib bin)
         find_path(Z3_INCLUDES NAMES z3++.h
                 HINTS $ENV{Z3_DIR}
                 PATH_SUFFIXES include z3)
@@ -85,9 +85,9 @@ if(CMAKE_BUILD_TYPE MATCHES "Debug")
         LINK_DIRECTORIES(${Z3_DIR}/bin)
     endif()
 else()
-    find_library(Z3_LIBRARIES NAMES libz3.a libz3.so
+    find_library(Z3_LIBRARIES NAMES libz3.a
             HINTS $ENV{Z3_DIR}
-            PATH_SUFFIXES bin)
+            PATH_SUFFIXES lib bin)
     find_path(Z3_INCLUDES NAMES z3++.h
             HINTS $ENV{Z3_DIR}
             PATH_SUFFIXES include z3)
