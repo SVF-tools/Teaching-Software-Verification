@@ -61,7 +61,7 @@ public:
 
     /// Return true if this function is an assert function
     inline bool isAssertFun(const SVFFunction *fun) const{
-        return (fun != NULL && (fun->getName().str() == "assert" || fun->getName().str() == "svf_assert"));
+        return (fun != NULL && (fun->getName() == "assert" || fun->getName() == "svf_assert"));
     }
 
     /// clear visited and callstack

@@ -70,7 +70,7 @@ z3::expr Z3SSEMgr::createExprForValVar(const ValVar* valVar){
         || type->isStructTy() || type->isArrayTy() || type->isVoidTy() || type->isLabelTy() || type->isMetadataTy())
             e = ctx.int_const(rawstr.str().c_str());
         else{
-            SVFUtil::errs() << value2String(valVar->getValue()) << "\n" << " type: " << *type << "\n";
+            SVFUtil::errs() << value2String(valVar->getValue()) << "\n" << " type: " << type2String(type) << "\n";
             assert(false && "what other types we have");   
         }
     }
