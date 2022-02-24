@@ -33,21 +33,9 @@ using namespace SVF;
 using namespace SVFUtil;
 
 
-int main(int argc, char **argv)
+int test1()
 {
-    int arg_num = 0;
-    int extraArgc = 1;
-    char **arg_value = new char *[argc + extraArgc];
-    std::vector<std::string> moduleNameVec;
-
-    SVFUtil::processArguments(argc, argv, arg_num, arg_value, moduleNameVec);
-    // add extra options
-    int orgArgNum = arg_num;
-    arg_value[arg_num++] = (char*) "-stat=false";
-    assert(arg_num == (orgArgNum + extraArgc) && "more extra arguments? Change the value of extraArgc");
-
-    llvm::cl::ParseCommandLineOptions(arg_num, arg_value,
-                                "Whole Program Points-to Analysis\n");
+    std::vector<std::string> moduleNameVec = {"./Assignment-2/testcase/bc/test1.ll"};
 
     SVFModule *svfModule = LLVMModuleSet::getLLVMModuleSet()->buildSVFModule(moduleNameVec);
     svfModule->buildSymbolTableInfo();
@@ -62,14 +50,54 @@ int main(int argc, char **argv)
     /// ICFG
     ICFG *icfg = svfir->getICFG();
     icfg->updateCallGraph(callgraph);
-    icfg->dump("icfg");
+    icfg->dump("./Assignment-2/testcase/dot/test1.ll.icfg");
 
     ICFGTraversal *traversal = new ICFGTraversal(svfir, icfg);
     traversal->analyse();
     
     SVF::LLVMModuleSet::releaseLLVMModuleSet();
     SVF::SVFIR::releaseSVFIR();
+    Set<std::string> expected = {"START: 0->1->2->3->END"};
+    assert(expected == traversal->getPaths() && "test1 failed!");
+    std::cout << "test1 passed!" << "\n";
+    delete traversal;
+    return 0;
+}
+
+
+
+int test2()
+{
+    std::vector<std::string> moduleNameVec = {"./Assignment-2/testcase/bc/test2.ll"};
+
+    SVFModule *svfModule = LLVMModuleSet::getLLVMModuleSet()->buildSVFModule(moduleNameVec);
+    svfModule->buildSymbolTableInfo();
+    LLVMModuleSet::getLLVMModuleSet()->dumpModulesToFile(".svf");
+
+    SVFIRBuilder builder;
+    SVFIR *svfir = builder.build(svfModule);
+
+    PTACallGraph* callgraph = AndersenWaveDiff::createAndersenWaveDiff(svfir)->getPTACallGraph();
+    builder.updateCallGraph(callgraph);
+
+    /// ICFG
+    ICFG *icfg = svfir->getICFG();
+    icfg->updateCallGraph(callgraph);
+    icfg->dump("./Assignment-2/testcase/dot/test2.ll.icfg");
+
+    ICFGTraversal *traversal = new ICFGTraversal(svfir, icfg);
+    traversal->analyse();
+    Set<std::string> expected = {"START: 0->5->6->7->8->1->2->3->4->9->10->11->12->END"};
+    assert(expected == traversal->getPaths() && "test2 failed!");
+    std::cout << "test2 passed!" << "\n";
+    SVF::LLVMModuleSet::releaseLLVMModuleSet();
+    SVF::SVFIR::releaseSVFIR();
 
     delete traversal;
     return 0;
+}
+
+int main(int argc, char **argv){
+    test1();
+    test2();
 }
