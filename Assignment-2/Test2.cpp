@@ -59,7 +59,7 @@ int test1()
     SVF::SVFIR::releaseSVFIR();
     Set<std::string> expected = {"START: 0->1->2->3->END"};
     assert(expected == traversal->getPaths() && "test1 failed!");
-    std::cout << "test1 passed!" << "\n";
+    std::cout << SVFUtil::sucMsg("test1 passed!") << std::endl;
     delete traversal;
     return 0;
 }
@@ -68,7 +68,7 @@ int test1()
 
 int test2()
 {
-    std::vector<std::string> moduleNameVec = {"./Assignment-2/testcase/bc/test2.ll"};
+    std::vector<std::string> moduleNameVec = { "./Assignment-2/testcase/bc/test2.ll"};
 
     SVFModule *svfModule = LLVMModuleSet::getLLVMModuleSet()->buildSVFModule(moduleNameVec);
     svfModule->buildSymbolTableInfo();
@@ -89,7 +89,7 @@ int test2()
     traversal->analyse();
     Set<std::string> expected = {"START: 0->5->6->7->8->1->2->3->4->9->10->11->12->END"};
     assert(expected == traversal->getPaths() && "test2 failed!");
-    std::cout << "test2 passed!" << "\n";
+    std::cout << SVFUtil::sucMsg("test2 passed!") << std::endl;
     SVF::LLVMModuleSet::releaseLLVMModuleSet();
     SVF::SVFIR::releaseSVFIR();
 
@@ -97,7 +97,11 @@ int test2()
     return 0;
 }
 
-int main(int argc, char **argv){
+int main(){
+    char **arg_value = new char *[1];
+    arg_value[1] = (char*) "-stat=false";
+    llvm::cl::ParseCommandLineOptions(2, arg_value,
+                                "Whole Program Points-to Analysis\n");
     test1();
     test2();
 }
