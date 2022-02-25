@@ -131,7 +131,18 @@ int test3()
 
 int main(int argc, char **argv)
 {
-    llvm::cl::ParseCommandLineOptions(argc, argv,
+    int arg_num = 0;
+    int extraArgc = 1;
+    char **arg_value = new char *[argc + extraArgc];
+    std::vector<std::string> moduleNameVec;
+
+    SVFUtil::processArguments(argc, argv, arg_num, arg_value, moduleNameVec);
+    // add extra options
+    int orgArgNum = arg_num;
+    arg_value[arg_num++] = (char*) "-stat=false";
+    assert(arg_num == (orgArgNum + extraArgc) && "more extra arguments? Change the value of extraArgc");
+
+    llvm::cl::ParseCommandLineOptions(arg_num, arg_value,
                                 "Whole Program Points-to Analysis\n");
 
     test1();

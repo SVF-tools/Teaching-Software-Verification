@@ -90,10 +90,7 @@ public:
         clearVarID2ExprMap();
     }
 
-    bool EvalTrue(z3::expr e){
-        return getEvalExpr(e).is_true();
-    }
-    
+
     void printExprValues(){
         std::cout.flags(std::ios::left);
         std::cout << "-----------Var and Value-----------\n";
@@ -116,14 +113,14 @@ public:
     
     /// To implement
     ///@{
-    void test0();
-    void test1();
-    void test2();
-    void test3();
-    void test4();
-    void test5();
-    void test6();
-    void test7();
+    z3::expr test0();
+    z3::expr test1();
+    z3::expr test2();
+    z3::expr test3();
+    z3::expr test4();
+    z3::expr test5();
+    z3::expr test6();
+    z3::expr test7();
     ///@}
 private:
     std::map<std::string,u32_t> strToIDMap;
