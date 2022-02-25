@@ -90,6 +90,10 @@ public:
         clearVarID2ExprMap();
     }
 
+    bool EvalTrue(z3::expr e){
+        return getEvalExpr(e).is_true();
+    }
+    
     void printExprValues(){
         std::cout.flags(std::ios::left);
         std::cout << "-----------Var and Value-----------\n";
