@@ -26,6 +26,7 @@
  // 
  */
 
+
 #include "Assignment-2.h"
 #include "WPA/Andersen.h"
 
@@ -97,11 +98,43 @@ int test2()
     return 0;
 }
 
+int test3()
+{
+    std::vector<std::string> moduleNameVec = { "./Assignment-2/testcase/bc/test3.ll"};
+
+    SVFModule *svfModule = LLVMModuleSet::getLLVMModuleSet()->buildSVFModule(moduleNameVec);
+    svfModule->buildSymbolTableInfo();
+    LLVMModuleSet::getLLVMModuleSet()->dumpModulesToFile(".svf");
+
+    SVFIRBuilder builder;
+    SVFIR *svfir = builder.build(svfModule);
+
+    PTACallGraph* callgraph = AndersenWaveDiff::createAndersenWaveDiff(svfir)->getPTACallGraph();
+    builder.updateCallGraph(callgraph);
+
+    /// ICFG
+    ICFG *icfg = svfir->getICFG();
+    icfg->updateCallGraph(callgraph);
+    icfg->dump("./Assignment-2/testcase/dot/test3.ll.icfg");
+
+    ICFGTraversal *traversal = new ICFGTraversal(svfir, icfg);
+    traversal->analyse();
+    Set<std::string> expected = {"START: 0->17->18->1->2->3->5->7->9->END","START: 0->17->18->1->2->3->4->6->8->11->END"};
+    assert(expected == traversal->getPaths() && "test3 failed!");
+    std::cout << SVFUtil::sucMsg("test3 passed!") << std::endl;
+    SVF::LLVMModuleSet::releaseLLVMModuleSet();
+    SVF::SVFIR::releaseSVFIR();
+
+    delete traversal;
+    return 0;
+}
 
 int main(int argc, char **argv)
 {
     llvm::cl::ParseCommandLineOptions(argc, argv,
                                 "Whole Program Points-to Analysis\n");
+
     test1();
     test2();
+    test3();
 }
