@@ -81,10 +81,13 @@ public:
     virtual bool handleCall(const CallCFGEdge* call);
     virtual bool handleRet(const RetCFGEdge* ret);
     virtual bool handleIntra(const IntraCFGEdge* edge);
-
+    
+    Set<std::string> getPaths(){
+        return paths;
+    }
 private:
     ICFG *icfg;
-    Set<std::vector<const ICFGNode *>> paths;
+    Set<std::string> paths;
 
 protected:
     SVFIR *svfir;

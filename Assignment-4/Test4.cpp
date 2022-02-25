@@ -32,7 +32,11 @@
 using namespace SVF;
 using namespace SVFUtil;
 
-
+/*
+ // Software-Verification-Teaching Assignment 4 main function entry
+ // To run your program with testcases , please set the assembly file from testcase/bc/ for "args" in file'.vscode/launch.json'
+ // e.g. To check test1, set "args": ["Assignment-4/testcase/bc/test1.ll"] in file'.vscode/launch.json'
+ */
 int main(int argc, char **argv)
 {
     int arg_num = 0;

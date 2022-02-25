@@ -79,7 +79,11 @@ void Test1()
     std::cout << "Test case 1 passed!\n";
 }
 
-/// Entry of the program
+/*
+ // Software-Verification-Teaching Assignment 1 main function entry
+ // To run your testcase, please set the "program": "${workspaceFolder}/bin/assign-1" in file '.vscode/launch.json'
+ // 
+ */
 int main()
 {
     Test1();
