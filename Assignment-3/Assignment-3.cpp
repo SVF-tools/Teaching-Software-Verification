@@ -74,7 +74,7 @@ void Z3ExampleMgr::test0(){
     addToSolver(x == loadValue(p));
 
     // assert(x==5);
-    addToSolver(x == getZ3Expr(5));
+    std::cout<< getEvalExpr(x == getZ3Expr(5)) << "\n";
 }
 
 /*
