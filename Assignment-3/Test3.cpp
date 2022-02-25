@@ -32,7 +32,12 @@ using namespace z3;
 using namespace SVF;
 using namespace SVFUtil;
 
-
+/*
+ // Software-Verification-Teaching Assignment 3 main function entry
+ // Please set the "program": "${workspaceFolder}/bin/assign-3" in file '.vscode/launch.json'
+ // To run your testcase from 1-7, please set the string number for "args" in file'.vscode/launch.json'
+ // e.g. To run test0, set "args": ["0"] in file'.vscode/launch.json'
+ */
 int main(int argc, char **argv) {
     Z3ExampleMgr* z3Mgr = new Z3ExampleMgr(1000);
     int points = 0;
@@ -40,31 +45,39 @@ int main(int argc, char **argv) {
     bool result;
     switch (n) {
         case 0:
-            result = z3Mgr->test0().is_true(); // simple integers
+            z3Mgr->test0(); // simple integers
+            result = true;
             break;
         case 1:
-            result = z3Mgr->test1().is_true(); // simple integers
+            z3Mgr->test1(); // simple integers
+            result = z3Mgr->getEvalExpr(z3Mgr->getZ3Expr("b") == z3Mgr->getZ3Expr(1)).is_true();
             break;
         case 2:
-            result = z3Mgr->test2().is_true(); // one-level pointers
+            z3Mgr->test2(); // one-level pointers
+            result = z3Mgr->getEvalExpr(z3Mgr->getZ3Expr("b") == z3Mgr->getZ3Expr(4)).is_true();
             break;
         case 3:
-            result = z3Mgr->test3().is_true(); // mutiple-level pointers
+            z3Mgr->test3(); // mutiple-level pointers
+            result = z3Mgr->getEvalExpr(z3Mgr->loadValue(z3Mgr->getZ3Expr("q")) == z3Mgr->getZ3Expr(10)).is_true();
             break;
         case 4:
-            result = z3Mgr->test4().is_true(); // array and pointers
+            z3Mgr->test4(); // array and pointers
+            result = z3Mgr->getEvalExpr(z3Mgr->getZ3Expr("a") == z3Mgr->getZ3Expr(10)).is_true();
             break;
 
         case 5:
-            result = z3Mgr->test5().is_true() ; // struct and pointers
+            z3Mgr->test5(); // struct and pointers
+            result = z3Mgr->getEvalExpr(z3Mgr->loadValue(z3Mgr->getZ3Expr("q")) == z3Mgr->getZ3Expr(10)).is_true();
             break;
         
         case 6:
-            result =z3Mgr->test6().is_true(); // branches
+            z3Mgr->test6(); // branches
+            result = z3Mgr->getEvalExpr(z3Mgr->getZ3Expr("b") == z3Mgr->getZ3Expr(5)).is_true();
             break;
 
         case 7:
-            result =z3Mgr->test7().is_true(); // call
+            z3Mgr->test7(); // call
+            result = (z3Mgr->getEvalExpr(z3Mgr->getZ3Expr("x") == 3)).is_true();
             break;
         default:
             assert(false && "wrong test number! input from 0 to 7 only");
@@ -72,12 +85,12 @@ int main(int argc, char **argv) {
     }
     
     if (result == false) {
-        // z3Mgr->printExprValues(); 
+        z3Mgr->printExprValues();
         std::cout << SVFUtil::errMsg("The test-") << SVFUtil::errMsg(std::to_string(n)) << SVFUtil::errMsg(" assertion is unsatisfiable!!") << std::endl;
         assert(false);
     }
     else {
-        // z3Mgr->printExprValues();
+        z3Mgr->printExprValues();
         std::cout << SVFUtil::sucMsg("The test-") << SVFUtil::sucMsg(std::to_string(n)) << SVFUtil::sucMsg(" assertion is successfully verified!!") << std::endl;
     }
     z3Mgr->resetSolver();

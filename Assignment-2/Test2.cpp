@@ -129,6 +129,11 @@ int test3()
     return 0;
 }
 
+/*
+ // Software-Verification-Teaching Assignment 2 main function entry
+ // To run your testcase, please set the "program": "${workspaceFolder}/bin/assign-2" in file '.vscode/launch.json'
+ // 
+ */
 int main(int argc, char **argv)
 {
     int arg_num = 0;

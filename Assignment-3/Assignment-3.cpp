@@ -46,7 +46,7 @@ using namespace SVF;
         assert(x==10);
     }
 */
-z3::expr Z3ExampleMgr::test0(){
+void Z3ExampleMgr::test0(){
 
     //  int** p;
     expr p = getZ3Expr("p");
@@ -74,7 +74,7 @@ z3::expr Z3ExampleMgr::test0(){
     addToSolver(x == loadValue(p));
 
     // assert(x==5);
-    return getEvalExpr(x == getZ3Expr(5));
+    std::cout<< getEvalExpr(x == getZ3Expr(5)) << "\n";
 }
 
 /*
@@ -89,7 +89,7 @@ z3::expr Z3ExampleMgr::test0(){
     }
 */
 /// TODO: Implement your translation for each C statement to a Z3 constraint
-z3::expr Z3ExampleMgr::test1(){
+void Z3ExampleMgr::test1(){
 
     //  int a;
 
@@ -120,7 +120,7 @@ z3::expr Z3ExampleMgr::test1(){
     }
 */
 /// TODO: Implement your translation for each C statement to a Z3 constraint
-z3::expr Z3ExampleMgr::test2(){
+void Z3ExampleMgr::test2(){
 
     //  int* p;
 
@@ -162,7 +162,7 @@ z3::expr Z3ExampleMgr::test2(){
     }
 */
 /// TODO: Implement your translation for each C statement to a Z3 constraint
-z3::expr Z3ExampleMgr::test3(){
+void Z3ExampleMgr::test3(){
 
     //  int** p;
 
@@ -208,7 +208,7 @@ z3::expr Z3ExampleMgr::test3(){
     }
 */
 /// TODO: Implement your translation for each C statement to a Z3 constraint
-z3::expr Z3ExampleMgr::test4(){
+void Z3ExampleMgr::test4(){
 
     //  int* p;
 
@@ -265,7 +265,7 @@ z3::expr Z3ExampleMgr::test4(){
     }
 */
 /// TODO: Implement your translation for each C statement to a Z3 constraint
-z3::expr Z3ExampleMgr::test5(){
+void Z3ExampleMgr::test5(){
 
     // struct A* p;
 
@@ -317,7 +317,7 @@ z3::expr Z3ExampleMgr::test5(){
     }
 */
 /// TODO: Implement your translation for each C statement to a Z3 constraint
-z3::expr Z3ExampleMgr::test6(){
+void Z3ExampleMgr::test6(){
 
     // int argv
 
@@ -350,7 +350,7 @@ int main() {
 }
 */
 /// TODO: Implement your translation for each C statement to a Z3 constraint
-z3::expr Z3ExampleMgr::test7(){
+void Z3ExampleMgr::test7(){
 
     // int x;
 
