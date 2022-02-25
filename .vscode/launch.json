@@ -6,7 +6,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/bin/assign-1",
-            "args": [],
+            "args": ["-stat=false"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
