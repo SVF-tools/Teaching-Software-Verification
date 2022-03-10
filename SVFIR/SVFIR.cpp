@@ -62,21 +62,27 @@ int main(int argc, char ** argv) {
     //dump icfg
     icfg->dump(svfModule->getModuleIdentifier() + ".icfg");
 
-        // iterate each ICFGNode on ICFG
+    // iterate each ICFGNode on ICFG
+    std::cout << SVFUtil::sucMsg("Now Performing ICFG Iterations") <<  std::endl;
     for(ICFG::iterator i = icfg->begin(); i != icfg->end(); i++)
     {
         ICFGNode *n = i->second;
-        // SVFUtil::outs() << n->toString() << "\n";
+        SVFUtil::outs() <<"-------\n" << n->toString() << "\n";
+        // uncomment the for loop below, you will see each control flow edge's information
+        
         // for(ICFGEdge* edge : n->getOutEdges()){
         //     SVFUtil::outs() << edge->toString() << "\n";
         // }
     }
 
     // iterate each SVFVar on SVFIR
+    std::cout << SVFUtil::sucMsg("Now Performing SVFIR Iterations") <<  std::endl;
     for(SVFIR::iterator p = pag->begin(); p != pag->end();p++)
     {
         SVFVar *n = p->second;
-        // SVFUtil::outs() << n->toString() << "\n";
+        SVFUtil::outs() <<"-------------\n" << n->toString() << "\n";
+        // uncomment the for loop below, you will see the information about SVFVar's value passing
+        
         // for(SVFStmt* edge : n->getOutEdges()){
         //     SVFUtil::outs() << edge->toString() << "\n";
         // }
