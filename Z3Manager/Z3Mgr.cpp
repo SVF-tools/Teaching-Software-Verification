@@ -237,6 +237,9 @@ s32_t Z3SSEMgr::getGepOffset(const GepStmt* gep){
 void Z3SSEMgr::printExprValues(){
     std::cout.flags(std::ios::left);
     std::cout << "-----------SVFVar and Value-----------\n";
+    std::map<std::string, std::string> printValMap;
+    std::map<NodeID, std::string> objKeyMap;
+    std::map<NodeID, std::string> valKeyMap;
     for (SVFIR::iterator nIter = svfir->begin(); nIter != svfir->end(); ++nIter)
     {
         expr e = getEvalExpr(getZ3Expr(nIter->first));
@@ -244,33 +247,44 @@ void Z3SSEMgr::printExprValues(){
             NodeID varID = nIter->second->getId();
             s32_t value = e.get_numeral_int64();
             std::stringstream exprName;
+            std::stringstream valstr;
             if(const ValVar* valVar = SVFUtil::dyn_cast<ValVar>(nIter->second)){
                 exprName << "ValVar" << varID;
-                std::cout << std::setw(25)  <<  exprName.str();
                 if(isVirtualMemAddress(value))
-                    std::cout << "\t Value: "<< std::hex << "0x" << value << "\n";
+                    valstr << "\t Value: "<< std::hex << "0x" << value << "\n";
                 else
-                    std::cout << "\t Value: " << std::dec << value << "\n";
+                    valstr << "\t Value: " << std::dec << value << "\n";
+                printValMap[exprName.str()] = valstr.str();
+                valKeyMap[varID] = exprName.str();
             }
             else{
                 exprName << "ObjVar" << varID << std::hex << " (0x" << getVirtualMemAddress(varID) << ") ";
-                std::cout << std::setw(25) << exprName.str();
                 if(isVirtualMemAddress(value)){
                     expr storedValue = getEvalExpr(loadValue(e));
                     if(storedValue.is_numeral()){
                         s32_t contentValue = z3Expr2NumValue(storedValue);
                         if(isVirtualMemAddress(contentValue))
-                            std::cout << "\t Value: " << std::hex << "0x" << contentValue << "\n";
+                            valstr << "\t Value: " << std::hex << "0x" << contentValue << "\n";
                         else
-                            std::cout << "\t Value: " << std::dec << contentValue << "\n";
+                            valstr << "\t Value: " << std::dec << contentValue << "\n";
                     }
                     else
-                        std::cout << "\t Value: NULL" << "\n";   
+                        valstr << "\t Value: NULL" << "\n";
                 }
                 else
-                    std::cout  << "\t Value: " << value << "\n";
+                    valstr << "\t Value: NULL" << "\n";
+                printValMap[exprName.str()] = valstr.str();
+                objKeyMap[varID] = exprName.str();
             }
         }
+    }
+    for (auto it = objKeyMap.begin(); it != objKeyMap.end(); ++it) {
+        std::string printKey = it->second;
+        std::cout << std::setw(25)  <<  printKey << printValMap[printKey];
+    }
+    for (auto it = valKeyMap.begin(); it != valKeyMap.end(); ++it) {
+        std::string printKey = it->second;
+        std::cout << std::setw(25)  <<  printKey << printValMap[printKey];
     }
     std::cout << "-----------------------------------------\n";
 }

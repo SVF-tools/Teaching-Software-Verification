@@ -54,30 +54,37 @@ int main(int argc, char ** argv) {
 
     /// Build Program Assignment Graph (SVFIR or PAG)
     SVFIRBuilder builder;
-    SVFIR *pag = builder.build(svfModule);
-    //dump pag
-    pag->dump(svfModule->getModuleIdentifier() + ".pag");
+    SVFIR *svfir = builder.build(svfModule);
+    // Dump pag
+    svfir->dump(svfModule->getModuleIdentifier() + ".pag");
     /// ICFG
-    ICFG *icfg = pag->getICFG();
-    //dump icfg
+    ICFG *icfg = svfir->getICFG();
+    // Dump icfg
     icfg->dump(svfModule->getModuleIdentifier() + ".icfg");
 
-        // iterate each ICFGNode on ICFG
+    // iterate each SVFVar on SVFIR
+    std::map<NodeID, std::string> svfVarMap;
+    for(SVFIR::iterator p = svfir->begin(); p != svfir->end();p++)
+    {
+        SVFVar *n = p->second;
+        svfVarMap[p->first] =  n->toString();
+    }
+
+    for (auto it = svfVarMap.begin(); it != svfVarMap.end(); ++it) {
+        std::cout  <<  it->second << "\n\n";
+    }
+
+    // iterate each ICFGNode on ICFG
+    std::map<NodeID, std::string> icfgMap;
     for(ICFG::iterator i = icfg->begin(); i != icfg->end(); i++)
     {
         ICFGNode *n = i->second;
-        // SVFUtil::outs() << n->toString() << "\n";
-        // for(ICFGEdge* edge : n->getOutEdges()){
-        //     SVFUtil::outs() << edge->toString() << "\n";
-        // }
+        icfgMap[i->first] =  n->toString();
     }
 
-    // iterate each SVFVar on SVFIR
-    for(SVFIR::iterator p = pag->begin(); p != pag->end();p++)
-    {
-        SVFVar *n = p->second;
-        // SVFUtil::outs() << n->toString() << "\n";
-        // for(SVFStmt* edge : n->getOutEdges()){
+    for (auto it = icfgMap.begin(); it != icfgMap.end(); ++it) {
+        std::cout  <<  it->second << "\n\n";
+        // for(ICFGEdge* edge : icfg->getGNode(it->first)->getOutEdges()){
         //     SVFUtil::outs() << edge->toString() << "\n";
         // }
     }

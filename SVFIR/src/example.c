@@ -1,16 +1,6 @@
-#include<stdbool.h>
-void sink();
-void source(int *s){
-	sink();
-};
-void sink(){
-};
-
+int foo(b){
+    return b;
+}
 int main(){
-        int a = 1;
-        while ( a <=1){
-                source(&a);
-                a++;
-        }
-        return 0;
-};
+	int a = foo(0);
+}
