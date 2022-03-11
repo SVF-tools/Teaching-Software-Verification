@@ -43,10 +43,20 @@ static llvm::cl::opt<std::string> InputFilename(cl::Positional,
 int main(int argc, char ** argv) {
 
     int arg_num = 0;
-    char **arg_value = new char*[argc];
+    int extraArgc = 4;
+    char **arg_value = new char *[argc + extraArgc];
     std::vector<std::string> moduleNameVec;
+
     SVFUtil::processArguments(argc, argv, arg_num, arg_value, moduleNameVec);
-    cl::ParseCommandLineOptions(arg_num, arg_value,
+    // add extra options
+    int orgArgNum = arg_num;
+    arg_value[arg_num++] = (char*) "-model-consts=true";
+    arg_value[arg_num++] = (char*) "-model-arrays=true";
+    arg_value[arg_num++] = (char*) "-pre-field-sensitive=false";
+    arg_value[arg_num++] = (char*) "-stat=false";
+    assert(arg_num == (orgArgNum + extraArgc) && "more extra arguments? Change the value of extraArgc");
+
+    llvm::cl::ParseCommandLineOptions(arg_num, arg_value,
                                 "Whole Program Points-to Analysis\n");
 
     SVFModule* svfModule = LLVMModuleSet::getLLVMModuleSet()->buildSVFModule(moduleNameVec);
