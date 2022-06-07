@@ -69,7 +69,7 @@ int main(int argc, char **argv)
     /// ICFG
     ICFG *icfg = svfir->getICFG();
     icfg->updateCallGraph(callgraph);
-    icfg->dump("icfg");
+    icfg->dump(moduleNameVec[0] + ".icfg");
 
     SSE *sse = new SSE(svfir, icfg);
     sse->analyse();

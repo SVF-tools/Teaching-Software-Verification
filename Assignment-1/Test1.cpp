@@ -33,7 +33,8 @@ void Test1()
 {
   /*
 
-
+      0
+      | <- start from here
       1
      /  \ 
     2   3
@@ -44,6 +45,7 @@ void Test1()
 
 */
   // init nodes
+    Node *node0 = new Node(0);
     Node *node1 = new Node(1);
     Node *node2 = new Node(2);
     Node *node3 = new Node(3);
@@ -51,6 +53,7 @@ void Test1()
     Node *node5 = new Node(5);
 
     // init edges
+    Edge *edge0 = new Edge(node0, node1);
     Edge *edge1 = new Edge(node1, node2);
     Edge *edge2 = new Edge(node1, node3);
     node1->addOutEdge(edge1);
@@ -74,7 +77,7 @@ void Test1()
     std::set<const Node *> visited;
     std::vector<const Node *> path;
     GraphTraversal *dfs = new GraphTraversal();
-    dfs->DFS(visited, path, node1, node5);
+    dfs->DFS(edge0, node5);
     assert(dfs->getPaths() == expected_answer && "Test case 1 failed!");
     std::cout << "Test case 1 passed!\n";
 }

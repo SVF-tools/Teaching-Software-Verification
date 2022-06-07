@@ -36,6 +36,8 @@ namespace SVF{
 class ICFGTraversal
 {
 public:
+    typedef std::vector<const Instruction*> CallStack;
+
     ICFGTraversal(SVFIR *s, ICFG *i) : svfir(s), icfg(i)
     {
     }
@@ -61,26 +63,25 @@ public:
 
     /// Return true if this function is an assert function
     inline bool isAssertFun(const SVFFunction *fun) const{
-        return (fun != NULL && (fun->getName() == "assert" || fun->getName() == "svf_assert"));
+        return (fun != NULL && (fun->getName() == "assert" || fun->getName() == "svf_assert" ||fun->getName() == "sink" ));
     }
 
     /// clear visited and callstack
     virtual void resetSolver(){
         visited.clear();
-        callstack.clear();
     }        
 
     /// Print the ICFG path
-    virtual void printICFGPath(std::vector<const ICFGNode *> &path);
+    virtual void printICFGPath();
 
-    /// Depth-first-search ICFGTraversal on ICFG from src node to dst node
-    void dfs(std::vector<const ICFGNode *> path, const ICFGNode *src, const ICFGNode *dst);
+    /// Depth-first-search ICFGTraversal on ICFG from src edge to dst node
+    void dfs(const ICFGEdge *src, const ICFGNode *dst);
 
     void analyse();
 
-    virtual bool handleCall(const CallCFGEdge* call);
-    virtual bool handleRet(const RetCFGEdge* ret);
-    virtual bool handleIntra(const IntraCFGEdge* edge);
+    virtual bool handleCall(const CallCFGEdge* call) {  return true; }
+    virtual bool handleRet(const RetCFGEdge* ret) {  return true; }
+    virtual bool handleIntra(const IntraCFGEdge* edge) {  return true; }
     
     Set<std::string> getPaths(){
         return paths;
@@ -91,8 +92,9 @@ private:
 
 protected:
     SVFIR *svfir;
-    Set<const ICFGNode *> visited;
-    std::vector<const CallICFGNode *> callstack;
+    Set<std::pair<const ICFGEdge *, CallStack > > visited;
+    CallStack callstack;
+    std::vector<const ICFGEdge *> path;
 };
 }
 

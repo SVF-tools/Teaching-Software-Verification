@@ -82,17 +82,20 @@ public:
     }
 
     /// Print the ICFG path
-    void printICFGPath(std::vector<const ICFGNode *> &path){
-        assertchecking(path.back());
-        ICFGTraversal::printICFGPath(path);
+    void printICFGPath(){
+        ICFGTraversal::printICFGPath();
+        if(translatePath(path))
+            assertchecking(path.back()->getDstNode());
+        resetSolver();
     }
 
     /// clear visited, callstack and solver
     void resetSolver(){
-        visited.clear();
-        callstack.clear();
         getSolver().reset();
     }        
+
+    /// Encode the path into Z3 constraints and return true if the path is feasible, false otherwise.
+    bool translatePath(std::vector<const ICFGEdge *> &path);
 
     /// Return true if svf_assert check is successful
     bool assertchecking(const ICFGNode* edge);
@@ -100,10 +103,17 @@ public:
     bool handleCall(const CallCFGEdge* call);
     bool handleRet(const RetCFGEdge* ret);
     bool handleIntra(const IntraCFGEdge* edge){
-        if(edge->getCondition() && handleBranch(edge) == false)
-            return false;
-        else
+        if(edge->getCondition()) {
+            if (handleBranch(edge) == false)
+                return false;
+            else {
+                // if edge is from "br if.end" to stmt after if.end, should handle it as non branch
+                return handleNonBranch(edge);
+            }
+        }
+        else {
             return handleNonBranch(edge);
+        }
     }
     bool handleNonBranch(const IntraCFGEdge* edge);
     bool handleBranch(const IntraCFGEdge* edge);
