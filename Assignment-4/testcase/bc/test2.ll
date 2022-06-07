@@ -1,12 +1,15 @@
-; ModuleID = 'test2.ll'
-source_filename = "src/test2.c"
+; ModuleID = '../src/test2.c'
+source_filename = "../src/test2.c"
 target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-unknown-linux-gnu"
 
 ; Function Attrs: noinline nounwind uwtable
 define dso_local void @foo(i32* %p) #0 {
 entry:
-  store i32 1, i32* %p, align 4
+  %p.addr = alloca i32*, align 8
+  store i32* %p, i32** %p.addr, align 8
+  %0 = load i32*, i32** %p.addr, align 8
+  store i32 1, i32* %0, align 4
   ret void
 }
 

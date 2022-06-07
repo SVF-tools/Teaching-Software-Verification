@@ -111,10 +111,10 @@ public:
     ~GraphTraversal(){};
 
     /// To be implemented
-    void printPath(std::vector<const Node *> &path);
+    void printPath(std::vector<const Edge *> &path);
 
     /// To be implemented
-    void DFS(std::set<const Node *> &visited, std::vector<const Node *> &path, const Node *src, const Node *dst);
+    void DFS(const Edge *src_edge, const Node *dst);
 
     // Retrieve all paths (a set of strings) during graph traversal
     std::set<std::string>& getPaths(){
@@ -122,7 +122,9 @@ public:
     } 
 
 private:
-    std::set<std::string> paths;
+    std::set<const Node *> visited;
+    std::vector<const Edge *> path;
+    std::set<std::string> paths; 
 };
 
 #endif

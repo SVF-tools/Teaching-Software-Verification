@@ -1,12 +1,19 @@
-; ModuleID = 'test1.ll'
-source_filename = "src/test1.c"
+; ModuleID = '../src/test1.c'
+source_filename = "../src/test1.c"
 target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-unknown-linux-gnu"
 
 ; Function Attrs: noinline nounwind uwtable
 define dso_local i32 @main() #0 {
 entry:
-  %cmp = icmp eq i32 3, 3
+  %p = alloca i32*, align 8
+  %a = alloca i32, align 4
+  store i32 1, i32* %a, align 4
+  store i32* %a, i32** %p, align 8
+  %0 = load i32*, i32** %p, align 8
+  store i32 3, i32* %0, align 4
+  %1 = load i32, i32* %a, align 4
+  %cmp = icmp eq i32 %1, 3
   call void @svf_assert(i1 zeroext %cmp)
   ret i32 0
 }

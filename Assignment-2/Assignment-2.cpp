@@ -31,34 +31,20 @@
 using namespace SVF;
 using namespace SVFUtil;
 
-/// TODO: Implement your context-sensitive ICFG traversal here to traverse each program path (once for any loop) from src to dst
-void ICFGTraversal::dfs(std::vector<const ICFGNode *> path, const ICFGNode *src, const ICFGNode *sink) {
-
+/// TODO: Implement your context-sensitive ICFG traversal here to traverse each program path (once for any loop) from src edge to dst node
+void ICFGTraversal::dfs(const ICFGEdge *src, const ICFGNode *dst) {
+    
 }
 
 /// TODO: print each path once this method is called, and
 /// add each path as a string into std::set<std::string> paths
 /// Print the path in the format "START: 1->2->4->5->END", where -> indicate an ICFGEdge connects two ICFGNode IDs
-void ICFGTraversal::printICFGPath(std::vector<const ICFGNode *> &path)
+void ICFGTraversal::printICFGPath()
 {
-
+    
 }
 
-/// TODO: Implement handle call
-bool ICFGTraversal::handleCall(const CallCFGEdge* call){
-    return true;
-}
-
-/// TODO: Implement handle ret
-bool ICFGTraversal::handleRet(const RetCFGEdge* ret){
-    return true;
-}
-
-bool ICFGTraversal::handleIntra(const IntraCFGEdge* edge){
-    return true;
-}
-
-/// Program entry
+/// Program entry, do not change
 void ICFGTraversal::analyse()
 {
     std::set<const ICFGNode *> sources;
@@ -66,9 +52,9 @@ void ICFGTraversal::analyse()
     for (const ICFGNode *src : identifySource(sources)) {
         assert(SVFUtil::isa<GlobalICFGNode>(src) && "dfs should start with GlobalICFGNode!");
         for (const ICFGNode *sink: identifySink(sinks)) {
-            handleIntra(new IntraCFGEdge(nullptr,const_cast<ICFGNode*>(src)));
-            std::vector<const ICFGNode *> path;
-            dfs(path, src, sink);
+            const IntraCFGEdge* startEdge = new IntraCFGEdge(nullptr,const_cast<ICFGNode*>(src));
+            handleIntra(startEdge);
+            dfs(startEdge, sink);
             resetSolver();
         }
     }

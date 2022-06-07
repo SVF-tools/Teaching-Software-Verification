@@ -1,24 +1,43 @@
-; ModuleID = 'test3.ll'
-source_filename = "Assignment-2/testcase/src/test3.c"
+; ModuleID = '../src/test3.c'
+source_filename = "../src/test3.c"
 target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-unknown-linux-gnu"
 
 ; Function Attrs: noinline nounwind uwtable
 define dso_local i32 @test(i32 %a, i32 %b) #0 {
 entry:
-  %cmp = icmp sgt i32 %a, %b
+  %a.addr = alloca i32, align 4
+  %b.addr = alloca i32, align 4
+  %x = alloca i32, align 4
+  %y = alloca i32, align 4
+  store i32 %a, i32* %a.addr, align 4
+  store i32 %b, i32* %b.addr, align 4
+  store i32 1, i32* %x, align 4
+  store i32 1, i32* %y, align 4
+  %0 = load i32, i32* %a.addr, align 4
+  %1 = load i32, i32* %b.addr, align 4
+  %cmp = icmp sgt i32 %0, %1
   br i1 %cmp, label %if.then, label %if.else
 
 if.then:                                          ; preds = %entry
-  %inc = add nsw i32 1, 1
-  %inc1 = add nsw i32 1, 1
-  %cmp2 = icmp eq i32 %inc, %inc1
+  %2 = load i32, i32* %x, align 4
+  %inc = add nsw i32 %2, 1
+  store i32 %inc, i32* %x, align 4
+  %3 = load i32, i32* %y, align 4
+  %inc1 = add nsw i32 %3, 1
+  store i32 %inc1, i32* %y, align 4
+  %4 = load i32, i32* %x, align 4
+  %5 = load i32, i32* %y, align 4
+  %cmp2 = icmp eq i32 %4, %5
   call void @svf_assert(i1 zeroext %cmp2)
   br label %if.end
 
 if.else:                                          ; preds = %entry
-  %inc3 = add nsw i32 1, 1
-  %cmp4 = icmp eq i32 %inc3, 2
+  %6 = load i32, i32* %x, align 4
+  %inc3 = add nsw i32 %6, 1
+  store i32 %inc3, i32* %x, align 4
+  %7 = load i32, i32* %x, align 4
+  %cmp4 = icmp eq i32 %7, 2
   call void @svf_assert(i1 zeroext %cmp4)
   br label %if.end
 
@@ -31,7 +50,15 @@ declare dso_local void @svf_assert(i1 zeroext) #1
 ; Function Attrs: noinline nounwind uwtable
 define dso_local i32 @main() #0 {
 entry:
-  %call = call i32 @test(i32 1, i32 2)
+  %retval = alloca i32, align 4
+  %a = alloca i32, align 4
+  %b = alloca i32, align 4
+  store i32 0, i32* %retval, align 4
+  store i32 1, i32* %a, align 4
+  store i32 2, i32* %b, align 4
+  %0 = load i32, i32* %a, align 4
+  %1 = load i32, i32* %b, align 4
+  %call = call i32 @test(i32 %0, i32 %1)
   ret i32 0
 }
 
