@@ -28,6 +28,7 @@
 
 #include "Assignment-4.h"
 #include "WPA/Andersen.h"
+#include "SVF-FE/LLVMUtil.h"
 
 using namespace SVF;
 using namespace SVFUtil;
