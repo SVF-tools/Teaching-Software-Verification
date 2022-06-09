@@ -24,6 +24,7 @@
 
 #include "Z3Mgr.h"
 #include "MemoryModel/SVFIR.h"
+#include "SVF-FE/LLVMUtil.h"
 #include <set>
 #include <iomanip>
 
