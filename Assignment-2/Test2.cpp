@@ -142,7 +142,7 @@ int main(int argc, char **argv)
     char **arg_value = new char *[argc + extraArgc];
     std::vector<std::string> moduleNameVec;
 
-    SVFUtil::processArguments(argc, argv, arg_num, arg_value, moduleNameVec);
+    LLVMUtil::processArguments(argc, argv, arg_num, arg_value, moduleNameVec);
     // add extra options
     int orgArgNum = arg_num;
     arg_value[arg_num++] = (char*) "-stat=false";
