@@ -29,11 +29,13 @@
 #include "Assignment-4.h"
 #include "WPA/Andersen.h"
 #include "SVF-FE/LLVMUtil.h"
+#include <llvm/Support/CommandLine.h>	// for command line options
+
 
 using namespace SVF;
 using namespace SVFUtil;
 
-static llvm::cl::opt<std::string> InputFilename(cl::Positional,
+static llvm::cl::opt<std::string> InputFilename(llvm::cl::Positional,
         llvm::cl::desc("<input bitcode>"), llvm::cl::init("-"));
 /*
  // Software-Verification-Teaching Assignment 4 main function entry
