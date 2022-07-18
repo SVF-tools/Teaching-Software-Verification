@@ -33,6 +33,8 @@
 using namespace SVF;
 using namespace SVFUtil;
 
+static llvm::cl::opt<std::string> InputFilename(cl::Positional,
+        llvm::cl::desc("<input bitcode>"), llvm::cl::init("-"));
 /*
  // Software-Verification-Teaching Assignment 4 main function entry
  // To run your program with testcases , please set the assembly file from testcase/bc/ for "args" in file'.vscode/launch.json'
