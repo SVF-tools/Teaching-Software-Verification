@@ -43,8 +43,8 @@ int test1()
     svfModule->buildSymbolTableInfo();
     LLVMModuleSet::getLLVMModuleSet()->dumpModulesToFile(".svf");
 
-    SVFIRBuilder builder;
-    SVFIR *svfir = builder.build(svfModule);
+    SVFIRBuilder builder(svfModule);
+    SVFIR *svfir = builder.build();
 
     PTACallGraph* callgraph = AndersenWaveDiff::createAndersenWaveDiff(svfir)->getPTACallGraph();
     builder.updateCallGraph(callgraph);
@@ -76,8 +76,8 @@ int test2()
     svfModule->buildSymbolTableInfo();
     LLVMModuleSet::getLLVMModuleSet()->dumpModulesToFile(".svf");
 
-    SVFIRBuilder builder;
-    SVFIR *svfir = builder.build(svfModule);
+    SVFIRBuilder builder(svfModule);
+    SVFIR *svfir = builder.build();
 
     PTACallGraph* callgraph = AndersenWaveDiff::createAndersenWaveDiff(svfir)->getPTACallGraph();
     builder.updateCallGraph(callgraph);
@@ -107,8 +107,8 @@ int test3()
     svfModule->buildSymbolTableInfo();
     LLVMModuleSet::getLLVMModuleSet()->dumpModulesToFile(".svf");
 
-    SVFIRBuilder builder;
-    SVFIR *svfir = builder.build(svfModule);
+    SVFIRBuilder builder(svfModule);
+    SVFIR *svfir = builder.build();
 
     PTACallGraph* callgraph = AndersenWaveDiff::createAndersenWaveDiff(svfir)->getPTACallGraph();
     builder.updateCallGraph(callgraph);
