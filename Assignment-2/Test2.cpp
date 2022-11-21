@@ -29,7 +29,7 @@
 
 #include "Assignment-2.h"
 #include "WPA/Andersen.h"
-#include "SVF-FE/LLVMUtil.h"
+#include "SVF-LLVM/LLVMUtil.h"
 
 using namespace SVF;
 using namespace SVFUtil;
@@ -40,7 +40,6 @@ int test1()
     std::vector<std::string> moduleNameVec = {"./Assignment-2/testcase/bc/test1.ll"};
 
     SVFModule *svfModule = LLVMModuleSet::getLLVMModuleSet()->buildSVFModule(moduleNameVec);
-    svfModule->buildSymbolTableInfo();
     LLVMModuleSet::getLLVMModuleSet()->dumpModulesToFile(".svf");
 
     SVFIRBuilder builder(svfModule);
@@ -73,7 +72,6 @@ int test2()
     std::vector<std::string> moduleNameVec = { "./Assignment-2/testcase/bc/test2.ll"};
 
     SVFModule *svfModule = LLVMModuleSet::getLLVMModuleSet()->buildSVFModule(moduleNameVec);
-    svfModule->buildSymbolTableInfo();
     LLVMModuleSet::getLLVMModuleSet()->dumpModulesToFile(".svf");
 
     SVFIRBuilder builder(svfModule);
@@ -104,7 +102,6 @@ int test3()
     std::vector<std::string> moduleNameVec = { "./Assignment-2/testcase/bc/test3.ll"};
 
     SVFModule *svfModule = LLVMModuleSet::getLLVMModuleSet()->buildSVFModule(moduleNameVec);
-    svfModule->buildSymbolTableInfo();
     LLVMModuleSet::getLLVMModuleSet()->dumpModulesToFile(".svf");
 
     SVFIRBuilder builder(svfModule);

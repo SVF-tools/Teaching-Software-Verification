@@ -29,7 +29,7 @@
 #ifndef SVF_ICFG_TRAVERSAL_H
 #define SVF_ICFG_TRAVERSAL_H
 
-#include "SVF-FE/SVFIRBuilder.h"
+#include "SVF-LLVM/SVFIRBuilder.h"
 
 namespace SVF{
 

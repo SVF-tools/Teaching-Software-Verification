@@ -23,8 +23,8 @@
 //===-----------------------------------------------------------------------===//
 
 #include "Z3Mgr.h"
-#include "MemoryModel/SVFIR.h"
-#include "SVF-FE/LLVMUtil.h"
+#include "SVFIR/SVFIR.h"
+#include "SVF-LLVM/LLVMUtil.h"
 #include <set>
 #include <iomanip>
 
@@ -66,14 +66,8 @@ z3::expr Z3SSEMgr::createExprForValVar(const ValVar* valVar){
     raw_string_ostream rawstr(str);
     rawstr << "ValVar" << valVar->getId();
     expr e(ctx);
-    if(const Type* type = valVar->getType()){
-        if(type->isIntegerTy() || type->isFloatingPointTy() || type->isPointerTy() || type->isFunctionTy() 
-        || type->isStructTy() || type->isArrayTy() || type->isVoidTy() || type->isLabelTy() || type->isMetadataTy())
-            e = ctx.int_const(rawstr.str().c_str());
-        else{
-            SVFUtil::errs() << value2String(valVar->getValue()) << "\n" << " type: " << type2String(type) << "\n";
-            assert(false && "what other types we have");   
-        }
+    if(const SVFType* type = valVar->getType()){
+        e = ctx.int_const(rawstr.str().c_str());
     }
     else{
         e = ctx.int_const(rawstr.str().c_str());
@@ -98,24 +92,29 @@ z3::expr Z3SSEMgr::createExprForObjVar(const ObjVar* objVar){
     if(objVar->hasValue()){
         const MemObj* obj = objVar->getMemObj();
         /// constant data
-        if(obj->isConstantData() || obj->isConstantArray() || obj->isConstantStruct()){
-            if(const ConstantInt *consInt = SVFUtil::dyn_cast<ConstantInt>(obj->getValue()))
-                e = ctx.int_val(consInt->getSExtValue());
-            else if(const ConstantFP *consFP = SVFUtil::dyn_cast<ConstantFP>(obj->getValue()))
-                e = ctx.int_val(static_cast<u32_t>(consFP->getValue().convertToFloat()));
-            else if(const ConstantPointerNull *nptr = SVFUtil::dyn_cast<ConstantPointerNull>(obj->getValue()))
+        if (obj->isConstDataOrAggData() || obj->isConstantArray() || obj->isConstantStruct())
+        {
+            if (const SVFConstantInt* consInt = SVFUtil::dyn_cast<SVFConstantInt>(obj->getValue()))
+            {
+                e = ctx.int_val((s32_t)consInt->getSExtValue());
+            }
+            else if (const SVFConstantFP *consFP = SVFUtil::dyn_cast<SVFConstantFP>(obj->getValue()))
+                e = ctx.int_val(static_cast<u32_t>(consFP->getFPValue()));
+            else if (SVFUtil::isa<SVFConstantNullPtr>(obj->getValue()))
                 e = ctx.int_val(0);
-            else if(SVFUtil::isa<GlobalVariable>(obj->getValue()))
+            else if (SVFUtil::isa<SVFGlobalValue>(obj->getValue()))
                 e = ctx.int_val(getVirtualMemAddress(objVar->getId()));
-            else if(SVFUtil::isa<ConstantAggregate>(obj->getValue()))
-                assert(false && "implement this part");  
-            else{
-                std::cerr << value2String(obj->getValue()) << "\n";
-                assert(false && "what other types of values we have?");  
-            }      
+            else if (obj->isConstantArray() || obj->isConstantStruct())
+                assert(false && "implement this part");
+            else
+            {
+                std::cerr << obj->getValue()->toString() << "\n";
+                assert(false && "what other types of values we have?");
+            }
         }
         /// locations (address-taken variables)
-        else {
+        else
+        {
             e = ctx.int_val(getVirtualMemAddress(objVar->getId()));
         }
     }
@@ -210,9 +209,9 @@ s32_t Z3SSEMgr::getGepOffset(const GepStmt* gep){
 
     s32_t totalOffset = 0;
     for(int i = gep->getOffsetValueVec().size() - 1; i >= 0; i--){
-        const Value* value = gep->getOffsetValueVec()[i].first;
-        const Type* type = gep->getOffsetValueVec()[i].second;
-        const ConstantInt *op = SVFUtil::dyn_cast<ConstantInt>(value);
+        const SVFValue* value = gep->getOffsetValueVec()[i].first;
+        const SVFType* type = gep->getOffsetValueVec()[i].second;
+        const SVFConstantInt *op = SVFUtil::dyn_cast<SVFConstantInt>(value);
         s32_t offset = 0;
         /// constant as the offset
         if(op)
@@ -227,8 +226,8 @@ s32_t Z3SSEMgr::getGepOffset(const GepStmt* gep){
         }
 
         /// Caculate the offset
-        if(const PointerType* pty = SVFUtil::dyn_cast<PointerType>(type))
-            totalOffset += offset * gep->getLocationSet().getElementNum(pty->getElementType());
+        if(const SVFPointerType* pty = SVFUtil::dyn_cast<SVFPointerType>(type))
+            totalOffset += offset * gep->getLocationSet().getElementNum(pty->getPtrElementType());
         else
             totalOffset +=  SymbolTableInfo::SymbolInfo()->getFlattenedElemIdx(type, offset); 
     }

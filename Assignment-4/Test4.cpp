@@ -28,7 +28,7 @@
 
 #include "Assignment-4.h"
 #include "WPA/Andersen.h"
-#include "SVF-FE/LLVMUtil.h"
+#include "SVF-LLVM/LLVMUtil.h"
 #include <llvm/Support/CommandLine.h>	// for command line options
 
 
@@ -62,7 +62,6 @@ int main(int argc, char **argv)
                                 "Whole Program Points-to Analysis\n");
 
     SVFModule *svfModule = LLVMModuleSet::getLLVMModuleSet()->buildSVFModule(moduleNameVec);
-    svfModule->buildSymbolTableInfo();
     LLVMModuleSet::getLLVMModuleSet()->dumpModulesToFile(".svf");
 
     SVFIRBuilder builder(svfModule);
