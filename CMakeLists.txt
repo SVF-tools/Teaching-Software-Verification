@@ -53,10 +53,14 @@ else()
     MESSAGE (STATUS "building SVF in release mode")
     set(SVF_BIN "${SVF_DIR}/Release-build")
 endif()
-set(SVF_HEADER "${SVF_DIR}/include")
+set(SVF_HEADER "${SVF_DIR}/svf/include")
+set(SVF_LLVM_HEADER "${SVF_DIR}/svf-llvm/include")
 set(SVF_LIB "${SVF_BIN}/lib/libSvf.a")
 set(SVF_BIN_HEADER "${SVF_BIN}/include")
+set(SVF_NPM_HEADER "${SVF_DIR}/include")
 include_directories(${SVF_HEADER}
+	                ${SVF_LLVM_HEADER}
+		            ${SVF_NPM_HEADER}
                     ${SVF_BIN_HEADER})
 
 # set z3 env
