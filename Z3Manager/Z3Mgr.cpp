@@ -204,13 +204,13 @@ z3::expr Z3SSEMgr::getGepObjAddress(z3::expr pointer, u32_t offset){
 }
 
 s32_t Z3SSEMgr::getGepOffset(const GepStmt* gep){
-    if(gep->getOffsetVarVec().empty())
+    if(gep->getOffsetVarAndGepTypePairVec().empty())
         return gep->getConstantFieldIdx();
 
     s32_t totalOffset = 0;
-    for(int i = gep->getOffsetVarVec().size() - 1; i >= 0; i--){
-        const SVFValue* value = gep->getOffsetVarVec()[i]->getValue();
-        const SVFType* type = gep->getOffsetVarVec()[i]->getType();
+    for(int i = gep->getOffsetVarAndGepTypePairVec().size() - 1; i >= 0; i--){
+        const SVFValue* value = gep->getOffsetVarAndGepTypePairVec()[i].first->getValue();
+        const SVFType* type = gep->getOffsetVarAndGepTypePairVec()[i].second;
         const SVFConstantInt *op = SVFUtil::dyn_cast<SVFConstantInt>(value);
         s32_t offset = 0;
         /// constant as the offset
