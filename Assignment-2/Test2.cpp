@@ -29,7 +29,6 @@
 
 #include "Assignment-2.h"
 #include "WPA/Andersen.h"
-#include "SVF-LLVM/LLVMUtil.h"
 
 using namespace SVF;
 using namespace SVFUtil;
@@ -37,8 +36,7 @@ using namespace SVFUtil;
 
 int test1()
 {
-    std::vector<std::string> moduleNameVec = {"./Assignment-2/testcase/bc/test1.ll"};
-
+    std::vector<std::string> moduleNameVec = { "./Assignment-2/testcase/bc/test1.ll" };
     SVFModule *svfModule = LLVMModuleSet::getLLVMModuleSet()->buildSVFModule(moduleNameVec);
     LLVMModuleSet::getLLVMModuleSet()->dumpModulesToFile(".svf");
 
@@ -99,6 +97,7 @@ int test2()
 
 int test3()
 {
+    
     std::vector<std::string> moduleNameVec = { "./Assignment-2/testcase/bc/test3.ll"};
 
     SVFModule *svfModule = LLVMModuleSet::getLLVMModuleSet()->buildSVFModule(moduleNameVec);
@@ -138,15 +137,18 @@ int main(int argc, char **argv)
     int extraArgc = 1;
     char **arg_value = new char *[argc + extraArgc];
     std::vector<std::string> moduleNameVec;
+    for (; arg_num < argc; ++arg_num) {
+        arg_value[arg_num] = argv[arg_num];
+    }
 
-    LLVMUtil::processArguments(argc, argv, arg_num, arg_value, moduleNameVec);
     // add extra options
     int orgArgNum = arg_num;
     arg_value[arg_num++] = (char*) "-stat=false";
     assert(arg_num == (orgArgNum + extraArgc) && "more extra arguments? Change the value of extraArgc");
-
-    llvm::cl::ParseCommandLineOptions(arg_num, arg_value,
-                                "Whole Program Points-to Analysis\n");
+    
+    moduleNameVec = OptionBase::parseOptions(
+            arg_num, arg_value, "Software-Verification-Teaching Assignment 2", "[options]"
+    );
 
     test1();
     test2();

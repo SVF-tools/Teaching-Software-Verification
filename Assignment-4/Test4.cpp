@@ -29,14 +29,14 @@
 #include "Assignment-4.h"
 #include "WPA/Andersen.h"
 #include "SVF-LLVM/LLVMUtil.h"
-#include <llvm/Support/CommandLine.h>	// for command line options
+#include "Util/Options.h"
+#include "Util/CommandLine.h"
+
 
 
 using namespace SVF;
 using namespace SVFUtil;
 
-static llvm::cl::opt<std::string> InputFilename(llvm::cl::Positional,
-        llvm::cl::desc("<input bitcode>"), llvm::cl::init("-"));
 /*
  // Software-Verification-Teaching Assignment 4 main function entry
  // To run your program with testcases , please set the assembly file from testcase/bc/ for "args" in file'.vscode/launch.json'
@@ -47,19 +47,21 @@ int main(int argc, char **argv)
     int arg_num = 0;
     int extraArgc = 4;
     char **arg_value = new char *[argc + extraArgc];
+    for (; arg_num < argc; ++arg_num) {
+        arg_value[arg_num] = argv[arg_num];
+    }
     std::vector<std::string> moduleNameVec;
 
-    LLVMUtil::processArguments(argc, argv, arg_num, arg_value, moduleNameVec);
-    // add extra options
     int orgArgNum = arg_num;
-    arg_value[arg_num++] = (char*) "-model-consts=true";
     arg_value[arg_num++] = (char*) "-model-arrays=true";
     arg_value[arg_num++] = (char*) "-pre-field-sensitive=false";
+    arg_value[arg_num++] = (char*) "-model-consts=true";
     arg_value[arg_num++] = (char*) "-stat=false";
     assert(arg_num == (orgArgNum + extraArgc) && "more extra arguments? Change the value of extraArgc");
-
-    llvm::cl::ParseCommandLineOptions(arg_num, arg_value,
-                                "Whole Program Points-to Analysis\n");
+    
+    moduleNameVec = OptionBase::parseOptions(
+            arg_num, arg_value, "Software-Verification-Teaching Assignment 4", "[options] <input-bitcode...>"
+    );
 
     SVFModule *svfModule = LLVMModuleSet::getLLVMModuleSet()->buildSVFModule(moduleNameVec);
     LLVMModuleSet::getLLVMModuleSet()->dumpModulesToFile(".svf");
