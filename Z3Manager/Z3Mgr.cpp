@@ -227,7 +227,7 @@ s32_t Z3SSEMgr::getGepOffset(const GepStmt* gep){
 
         /// Caculate the offset
         if(const SVFPointerType* pty = SVFUtil::dyn_cast<SVFPointerType>(type))
-            totalOffset += offset * gep->getLocationSet().getElementNum(pty->getPtrElementType());
+            totalOffset += offset * gep->getAccessPath().getElementNum(pty->getPtrElementType());
         else
             totalOffset +=  SymbolTableInfo::SymbolInfo()->getFlattenedElemIdx(type, offset); 
     }
