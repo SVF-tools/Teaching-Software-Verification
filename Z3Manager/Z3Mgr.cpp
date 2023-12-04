@@ -205,7 +205,7 @@ z3::expr Z3SSEMgr::getGepObjAddress(z3::expr pointer, u32_t offset){
 
 s32_t Z3SSEMgr::getGepOffset(const GepStmt* gep){
     if(gep->getOffsetVarAndGepTypePairVec().empty())
-        return gep->getConstantFieldIdx();
+        return gep->getConstantStructFldIdx();
 
     s32_t totalOffset = 0;
     for(int i = gep->getOffsetVarAndGepTypePairVec().size() - 1; i >= 0; i--){
