@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.23)
 
 project(Teaching-Software-Verification
         VERSION 1.0
-        DESCRIPTION "Teaching-Software-Analysis is an open course for learning software analysis"
-        HOMEPAGE_URL "https://github.com/SVF-tools/Teaching-Software-Analysis"
+        DESCRIPTION "Teaching-Software-Verification is an open course for learning software verification"
+        HOMEPAGE_URL "https://github.com/SVF-tools/Teaching-Software-Verification"
         LANGUAGES C CXX
 )
 
@@ -12,7 +12,7 @@ if (DEFINED LLVM_DIR)
 endif()
 if (DEFINED ENV{LLVM_DIR})
     # We need to match the build environment for LLVM:
-    # In particular, we need C++11 and the -fno-rtti flag
+    # In particular, we need C++17 and the -fno-rtti flag
     set(CMAKE_CXX_STANDARD 17)
     if(CMAKE_BUILD_TYPE MATCHES "Debug")
         set(CMAKE_CXX_FLAGS "-fPIC -std=gnu++17 -O0 -fno-rtti -Wno-deprecated")
