@@ -29,6 +29,7 @@
 #include "Z3Mgr.h"
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <map>
 #include <iomanip>
 
