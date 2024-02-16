@@ -47,5 +47,5 @@ WORKDIR ${HOME}
 RUN git clone "https://github.com/SVF-tools/Teaching-Software-Verification.git"
 WORKDIR ${HOME}/Teaching-Software-Verification
 RUN echo "Building SVF-Teaching example ..."
-RUN cmake -DCMAKE_BUILD_TYPE=Release .
-RUN make
+RUN cmake -DCMAKE_BUILD_TYPE=MinSizeRel .
+RUN make -j8
