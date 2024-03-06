@@ -1,4 +1,4 @@
-int foo(b){
+int foo(int b){
     return b;
 }
 int main(){
