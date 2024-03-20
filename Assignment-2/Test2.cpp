@@ -85,7 +85,7 @@ int test2()
 
     ICFGTraversal *traversal = new ICFGTraversal(svfir, icfg);
     traversal->analyse();
-    Set<std::string> expected = {"START: 0->5->6->7->8->1->2->3->4->9->10->11->12->END"};
+    Set<std::string> expected = {"START: 0->5->6->7->8->1->2->3->4->9->10->1->2->3->4->11->12->13->14->END"};
     assert(expected == traversal->getPaths() && "test2 failed!");
     std::cout << SVFUtil::sucMsg("test2 passed!") << std::endl;
     SVF::LLVMModuleSet::releaseLLVMModuleSet();

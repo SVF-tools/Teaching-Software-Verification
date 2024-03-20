@@ -9,5 +9,6 @@ void foo(int* p) {
 int main() {
     int a = 0;
     foo(&a);
+    foo(&a);
     svf_assert(a == 1);
 }
