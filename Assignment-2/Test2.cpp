@@ -43,7 +43,7 @@ int test1()
     SVFIRBuilder builder(svfModule);
     SVFIR *svfir = builder.build();
 
-    PTACallGraph* callgraph = AndersenWaveDiff::createAndersenWaveDiff(svfir)->getPTACallGraph();
+    CallGraph* callgraph = AndersenWaveDiff::createAndersenWaveDiff(svfir)->getCallGraph();
     builder.updateCallGraph(callgraph);
 
     /// ICFG
@@ -75,7 +75,7 @@ int test2()
     SVFIRBuilder builder(svfModule);
     SVFIR *svfir = builder.build();
 
-    PTACallGraph* callgraph = AndersenWaveDiff::createAndersenWaveDiff(svfir)->getPTACallGraph();
+    CallGraph* callgraph = AndersenWaveDiff::createAndersenWaveDiff(svfir)->getCallGraph();
     builder.updateCallGraph(callgraph);
 
     /// ICFG
@@ -106,7 +106,7 @@ int test3()
     SVFIRBuilder builder(svfModule);
     SVFIR *svfir = builder.build();
 
-    PTACallGraph* callgraph = AndersenWaveDiff::createAndersenWaveDiff(svfir)->getPTACallGraph();
+    CallGraph* callgraph = AndersenWaveDiff::createAndersenWaveDiff(svfir)->getCallGraph();
     builder.updateCallGraph(callgraph);
 
     /// ICFG
