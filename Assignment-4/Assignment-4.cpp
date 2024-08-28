@@ -207,7 +207,7 @@ bool SSE::translatePath(std::vector<const ICFGEdge *> &path){
 
 bool SSE::assertchecking(const ICFGNode* inode){
     const CallICFGNode* callnode = SVFUtil::cast<CallICFGNode>(inode);
-    assert(callnode && isAssertFun(getCallee(callnode->getCallSite()))  && "last node is not an assert call?");
+    assert(callnode && isAssertFun(callnode->getCalledFunction())  && "last node is not an assert call?");
     
     DBOP(std::cout << "\n## Analyzing "<< callnode->toString() << "\n");
     expr arg0 = getZ3Expr(callnode->getActualParms().at(0)->getId());

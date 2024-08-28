@@ -54,7 +54,7 @@ public:
     {
         for (const CallICFGNode *cs : svfir->getCallSiteSet())
         {
-            const SVFFunction *fun = SVFUtil::getCallee(cs->getCallSite());
+            const SVFFunction *fun = cs->getCalledFunction();
             if (isAssertFun(fun))
                 container.insert(cs);
         }
