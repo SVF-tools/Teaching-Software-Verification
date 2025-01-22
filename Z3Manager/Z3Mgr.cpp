@@ -90,7 +90,7 @@ z3::expr Z3SSEMgr::createExprForObjVar(const ObjVar* objVar){
 
     expr e = ctx.int_const(rawstr.str().c_str());
     if(objVar->hasValue()){
-        const MemObj* obj = objVar->getMemObj();
+        const BaseObjVar* obj = svfir->getBaseObject(objVar->getId());
         /// constant data
         if (obj->isConstDataOrAggData() || obj->isConstantArray() || obj->isConstantStruct())
         {
