@@ -197,16 +197,14 @@ s32_t Z3SSEMgr::getGepOffset(const GepStmt* gep){
 
     s32_t totalOffset = 0;
     for(int i = gep->getOffsetVarAndGepTypePairVec().size() - 1; i >= 0; i--){
-        const SVFVar* value = gep->getOffsetVarAndGepTypePairVec()[i].first;
+        const SVFVar* var = gep->getOffsetVarAndGepTypePairVec()[i].first;
         const SVFType* type = gep->getOffsetVarAndGepTypePairVec()[i].second;
-        const ConstIntValVar *op = SVFUtil::dyn_cast<ConstIntValVar>(value);
         s32_t offset = 0;
-        /// constant as the offset
-        if(op)
-            offset = op->getSExtValue();
-        /// variable as the offset
+
+        if (const ConstIntValVar* constInt = SVFUtil::dyn_cast<ConstIntValVar>(var))
+            offset = constInt->getSExtValue();
         else
-            offset = z3Expr2NumValue(getZ3Expr(value->getId()));
+            offset = z3Expr2NumValue(getZ3Expr(var->getId()));
 
         if(type==nullptr){
             totalOffset += offset;
@@ -217,7 +215,7 @@ s32_t Z3SSEMgr::getGepOffset(const GepStmt* gep){
         if(const SVFPointerType* pty = SVFUtil::dyn_cast<SVFPointerType>(type))
             totalOffset += offset * gep->getAccessPath().getElementNum(gep->getAccessPath().gepSrcPointeeType());
         else
-            totalOffset +=  SymbolTableInfo::SymbolInfo()->getFlattenedElemIdx(type, offset); 
+            totalOffset += PAG::getPAG()->getFlattenedElemIdx(type, offset);
     }
     return totalOffset;
 }
