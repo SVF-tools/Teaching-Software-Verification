@@ -105,18 +105,12 @@ z3::expr Z3SSEMgr::createExprForObjVar(const ObjVar* objVar){
             e = ctx.int_val(getVirtualMemAddress(objVar->getId()));
         else if (obj->isConstantArray() || obj->isConstantStruct())
             assert(false && "implement this part");
-        else
-        {
-            std::cerr << obj->toString() << "\n";
-            assert(false && "what other types of values we have?");
-        }
     }
     /// locations (address-taken variables)
     else
     {
         e = ctx.int_val(getVirtualMemAddress(objVar->getId()));
     }
-
     updateZ3Expr(objVar->getId(), e);
     return e;
 }
