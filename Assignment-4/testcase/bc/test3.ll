@@ -1,49 +1,52 @@
-; ModuleID = 'test3.ll'
-source_filename = "test3.c"
-target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
-target triple = "x86_64-unknown-linux-gnu"
+; ModuleID = './test3.ll'
+source_filename = "./test3.c"
+target datalayout = "e-m:o-i64:64-i128:128-n32:64-S128"
+target triple = "arm64-apple-macosx14.0.0"
 
-; Function Attrs: noinline nounwind uwtable
-define dso_local i32 @test(i32 noundef %a, i32 noundef %b) #0 {
+; Function Attrs: noinline nounwind ssp uwtable(sync)
+define i32 @main() #0 !dbg !9 {
 entry:
-  %cmp = icmp sgt i32 %a, %b
-  br i1 %cmp, label %if.then, label %if.else
-
-if.then:                                          ; preds = %entry
-  %inc = add nsw i32 1, 1
-  %inc1 = add nsw i32 1, 1
-  %cmp2 = icmp eq i32 %inc, %inc1
-  call void @svf_assert(i1 noundef zeroext %cmp2)
-  br label %if.end
-
-if.else:                                          ; preds = %entry
-  %inc3 = add nsw i32 1, 1
-  %cmp4 = icmp eq i32 %inc3, 2
-  call void @svf_assert(i1 noundef zeroext %cmp4)
-  br label %if.end
-
-if.end:                                           ; preds = %if.else, %if.then
-  ret i32 0
+  call void @llvm.dbg.value(metadata i32 1, metadata !15, metadata !DIExpression()), !dbg !16
+  call void @llvm.dbg.value(metadata i32 1, metadata !17, metadata !DIExpression()), !dbg !16
+  %cmp = icmp eq i32 1, 1, !dbg !18
+  call void @svf_assert(i1 noundef zeroext %cmp), !dbg !19
+  ret i32 0, !dbg !20
 }
 
-declare void @svf_assert(i1 noundef zeroext) #1
+; Function Attrs: nocallback nofree nosync nounwind speculatable willreturn memory(none)
+declare void @llvm.dbg.declare(metadata, metadata, metadata) #1
 
-; Function Attrs: noinline nounwind uwtable
-define dso_local i32 @main() #0 {
-entry:
-  %call = call i32 @test(i32 noundef 1, i32 noundef 2)
-  ret i32 0
-}
+declare void @svf_assert(i1 noundef zeroext) #2
 
-attributes #0 = { noinline nounwind uwtable "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
-attributes #1 = { "frame-pointer"="all" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
+; Function Attrs: nocallback nofree nosync nounwind speculatable willreturn memory(none)
+declare void @llvm.dbg.value(metadata, metadata, metadata) #1
 
-!llvm.module.flags = !{!0, !1, !2, !3, !4}
-!llvm.ident = !{!5}
+attributes #0 = { noinline nounwind ssp uwtable(sync) "frame-pointer"="non-leaf" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="apple-m1" "target-features"="+aes,+crc,+crypto,+dotprod,+fp-armv8,+fp16fml,+fullfp16,+lse,+neon,+ras,+rcpc,+rdm,+sha2,+sha3,+sm4,+v8.1a,+v8.2a,+v8.3a,+v8.4a,+v8.5a,+v8a,+zcm,+zcz" }
+attributes #1 = { nocallback nofree nosync nounwind speculatable willreturn memory(none) }
+attributes #2 = { "frame-pointer"="non-leaf" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="apple-m1" "target-features"="+aes,+crc,+crypto,+dotprod,+fp-armv8,+fp16fml,+fullfp16,+lse,+neon,+ras,+rcpc,+rdm,+sha2,+sha3,+sm4,+v8.1a,+v8.2a,+v8.3a,+v8.4a,+v8.5a,+v8a,+zcm,+zcz" }
 
-!0 = !{i32 1, !"wchar_size", i32 4}
-!1 = !{i32 8, !"PIC Level", i32 2}
-!2 = !{i32 7, !"PIE Level", i32 2}
-!3 = !{i32 7, !"uwtable", i32 2}
-!4 = !{i32 7, !"frame-pointer", i32 2}
-!5 = !{!"clang version 16.0.0"}
+!llvm.dbg.cu = !{!0}
+!llvm.module.flags = !{!2, !3, !4, !5, !6, !7}
+!llvm.ident = !{!8}
+
+!0 = distinct !DICompileUnit(language: DW_LANG_C11, file: !1, producer: "Homebrew clang version 16.0.6", isOptimized: false, runtimeVersion: 0, emissionKind: FullDebug, splitDebugInlining: false, nameTableKind: None, sysroot: "/Library/Developer/CommandLineTools/SDKs/MacOSX14.sdk", sdk: "MacOSX14.sdk")
+!1 = !DIFile(filename: "test3.c", directory: "/Users/z5489735/2023/0522/Software-Security-Analysis/Assignment-2/Tests/testcases/sse")
+!2 = !{i32 7, !"Dwarf Version", i32 4}
+!3 = !{i32 2, !"Debug Info Version", i32 3}
+!4 = !{i32 1, !"wchar_size", i32 4}
+!5 = !{i32 8, !"PIC Level", i32 2}
+!6 = !{i32 7, !"uwtable", i32 1}
+!7 = !{i32 7, !"frame-pointer", i32 1}
+!8 = !{!"Homebrew clang version 16.0.6"}
+!9 = distinct !DISubprogram(name: "main", scope: !10, file: !10, line: 3, type: !11, scopeLine: 3, spFlags: DISPFlagDefinition, unit: !0, retainedNodes: !14)
+!10 = !DIFile(filename: "./test3.c", directory: "/Users/z5489735/2023/0522/Software-Security-Analysis/Assignment-2/Tests/testcases/sse")
+!11 = !DISubroutineType(types: !12)
+!12 = !{!13}
+!13 = !DIBasicType(name: "int", size: 32, encoding: DW_ATE_signed)
+!14 = !{}
+!15 = !DILocalVariable(name: "x", scope: !9, file: !10, line: 4, type: !13)
+!16 = !DILocation(line: 0, scope: !9)
+!17 = !DILocalVariable(name: "y", scope: !9, file: !10, line: 5, type: !13)
+!18 = !DILocation(line: 6, column: 18, scope: !9)
+!19 = !DILocation(line: 6, column: 5, scope: !9)
+!20 = !DILocation(line: 7, column: 5, scope: !9)

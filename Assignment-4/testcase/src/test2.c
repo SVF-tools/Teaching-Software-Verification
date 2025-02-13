@@ -1,13 +1,19 @@
+//
+// Created by Jiawei Wang on 2/3/22.
+//
+
 #include "stdbool.h"
-//ADDR, LOAD, STORE, CAST(COPY)
 extern void svf_assert(bool);
 
-void foo(int* p) {
-  *p = 1;
+int getValue(int* arr, int idx) {
+    return arr[idx];
 }
 
 int main() {
-    int a = 0;
-    foo(&a);
-    svf_assert(a == 1);
+    int arr[2];
+    arr[0] = 0;
+    arr[1] = 1;
+    int v = getValue(arr, 1);
+    svf_assert(v == 1);
+    return 0;
 }
