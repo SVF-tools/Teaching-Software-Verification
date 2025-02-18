@@ -36,7 +36,7 @@ namespace SVF{
 class ICFGTraversal
 {
 public:
-    typedef std::vector<const SVFInstruction*> CallStack;
+    typedef std::vector<const ICFGNode*> CallStack;
 
     ICFGTraversal(SVFIR *s, ICFG *i) : svfir(s), icfg(i)
     {
