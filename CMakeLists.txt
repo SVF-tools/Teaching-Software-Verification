@@ -138,12 +138,21 @@ llvm_map_components_to_libnames(llvm_libs bitwriter core ipo irreader instcombin
 if("${SVF_FOUND}")
     message(STATUS "Found installed SVF instance; importing using modern CMake methods")
 
+    # Check that SVF & the found LLVM instance match w.r.t. RTTI/exception handling support
+    if(NOT (${SVF_ENABLE_RTTI} STREQUAL ${LLVM_ENABLE_RTTI}))
+        message(FATAL_ERROR "SVF & LLVM RTTI support mismatch (SVF: ${SVF_ENABLE_RTTI}, LLVM: ${LLVM_ENABLE_RTTI})!")
+    endif()
+    if(NOT (${SVF_ENABLE_EXCEPTIONS} STREQUAL ${LLVM_ENABLE_EH}))
+        message(FATAL_ERROR "SVF & LLVM exceptions support mismatch (SVF: ${SVF_ENABLE_EXCEPTIONS}, LLVM: ${LLVM_ENABLE_EH})!")
+    endif()
+
     # Include SVF's include directories for all targets & include the library directories to find the library objects
     include_directories(SYSTEM ${SVF_INSTALL_INCLUDE_DIR})
     link_directories(${SVF_INSTALL_LIB_DIR})
     # Link the LLVM libraries (single dynamic library/multiple static libraries) to the example executable
 else()
     message(STATUS "Failed to find installed SVF instance; using legacy import method")
+    message(FATAL_ERROR "SVF & LLVM RTTI support mismatch (SVF: ${SVF_ENABLE_RTTI}, LLVM: ${LLVM_ENABLE_RTTI})!")
 endif()
 
 set(SVF_LIB SvfLLVM SvfCore)
