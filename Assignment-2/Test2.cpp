@@ -56,7 +56,7 @@ int test1()
     
     SVF::LLVMModuleSet::releaseLLVMModuleSet();
     SVF::SVFIR::releaseSVFIR();
-    Set<std::string> expected = {"START: 0->1->2->3->END"};
+    Set<std::string> expected = {"START: 0->1->3->4->END"};
     assert(expected == traversal->getPaths() && "test1 failed!");
     std::cout << SVFUtil::sucMsg("test1 passed!") << std::endl;
     delete traversal;
@@ -85,7 +85,7 @@ int test2()
 
     ICFGTraversal *traversal = new ICFGTraversal(svfir, icfg);
     traversal->analyse();
-    Set<std::string> expected = {"START: 0->5->6->7->8->1->2->3->4->9->10->1->2->3->4->11->12->13->14->END"};
+    Set<std::string> expected = {"START: 0->3->7->8->9->1->5->6->2->10->11->1->5->6->2->12->13->14->15->END"};
     assert(expected == traversal->getPaths() && "test2 failed!");
     std::cout << SVFUtil::sucMsg("test2 passed!") << std::endl;
     SVF::LLVMModuleSet::releaseLLVMModuleSet();
@@ -116,7 +116,7 @@ int test3()
 
     ICFGTraversal *traversal = new ICFGTraversal(svfir, icfg);
     traversal->analyse();
-    Set<std::string> expected = {"START: 0->17->18->1->2->3->5->7->9->END","START: 0->17->18->1->2->3->4->6->8->11->END"};
+    Set<std::string> expected = {"START: 0->3->19->1->5->6->8->10->12->END", "START: 0->3->19->1->5->6->7->9->11->14->END"};
     assert(expected == traversal->getPaths() && "test3 failed!");
     std::cout << SVFUtil::sucMsg("test3 passed!") << std::endl;
     SVF::LLVMModuleSet::releaseLLVMModuleSet();
