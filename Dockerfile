@@ -24,7 +24,7 @@ RUN apt-get install -y $build_deps $lib_deps
 RUN add-apt-repository ppa:deadsnakes/ppa
 RUN apt-get update
 RUN set -ex; \
-    apt-get update && apt-get install -y python3.10-dev \
+    apt-get update && apt-get install -y python3.10-dev python3-pip \
             && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1;
 
 
