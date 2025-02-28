@@ -1,0 +1,17 @@
+digraph "ICFG" {
+	label="ICFG";
+
+	Node0x2be7490 [shape=record,color=purple,label="{GlobalICFGNode0\nCopyStmt: [Var1 \<-- Var0]  \n ptr null \{ constant data \}\nAddrStmt: [Var13 \<-- Var3]  \n i32 0 \{ constant data \}\nAddrStmt: [Var8 \<-- Var3]  \n i32 3 \{ constant data \}\nAddrStmt: [Var4 \<-- Var5]  \nFunction: main \nAddrStmt: [Var10 \<-- Var11]  \nFunction: svf_assert }"];
+	Node0x2be7490 -> Node0x2b87910[style=solid];
+	Node0x2b87910 [shape=record,color=yellow,label="{FunEntryICFGNode1 \{fun: main\}}"];
+	Node0x2b87910 -> Node0x2bfaae0[style=solid];
+	Node0x2bfaae0 [shape=record,color=black,label="{IntraICFGNode2 \{fun: main\}\nCmpStmt: [Var7 \<-- (Var8 predicate32 Var8)]  \n   %cmp = icmp eq i32 3, 3 }"];
+	Node0x2bfaae0 -> Node0x2b88630[style=solid];
+	Node0x2b88630 [shape=record,color=red,label="{CallICFGNode3 \{fun: main\}}"];
+	Node0x2b88630 -> Node0x2b85070[style=solid];
+	Node0x2b85070 [shape=record,color=blue,label="{RetICFGNode4 \{fun: main\}}"];
+	Node0x2b85070 -> Node0x2bed000[style=solid];
+	Node0x2bed000 [shape=record,color=black,label="{IntraICFGNode5 \{fun: main\}\n   ret i32 0 }"];
+	Node0x2bed000 -> Node0x2bfb6a0[style=solid];
+	Node0x2bfb6a0 [shape=record,color=green,label="{FunExitICFGNode6 \{fun: main\}\nPhiStmt: [Var6 \<-- ([Var13, ICFGNode5],)]  \n   ret i32 0 }"];
+}
