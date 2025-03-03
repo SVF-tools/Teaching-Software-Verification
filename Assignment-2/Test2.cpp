@@ -37,10 +37,10 @@ using namespace SVFUtil;
 int test1()
 {
     std::vector<std::string> moduleNameVec = { "./Assignment-2/testcase/bc/test1.ll" };
-    SVFModule *svfModule = LLVMModuleSet::getLLVMModuleSet()->buildSVFModule(moduleNameVec);
+    LLVMModuleSet::getLLVMModuleSet()->buildSVFModule(moduleNameVec);
     LLVMModuleSet::getLLVMModuleSet()->dumpModulesToFile(".svf");
 
-    SVFIRBuilder builder(svfModule);
+    SVFIRBuilder builder;
     SVFIR *svfir = builder.build();
 
     CallGraph* callgraph = AndersenWaveDiff::createAndersenWaveDiff(svfir)->getCallGraph();
@@ -69,10 +69,10 @@ int test2()
 {
     std::vector<std::string> moduleNameVec = { "./Assignment-2/testcase/bc/test2.ll"};
 
-    SVFModule *svfModule = LLVMModuleSet::getLLVMModuleSet()->buildSVFModule(moduleNameVec);
+    LLVMModuleSet::getLLVMModuleSet()->buildSVFModule(moduleNameVec);
     LLVMModuleSet::getLLVMModuleSet()->dumpModulesToFile(".svf");
 
-    SVFIRBuilder builder(svfModule);
+    SVFIRBuilder builder;
     SVFIR *svfir = builder.build();
 
     CallGraph* callgraph = AndersenWaveDiff::createAndersenWaveDiff(svfir)->getCallGraph();
@@ -100,10 +100,10 @@ int test3()
     
     std::vector<std::string> moduleNameVec = { "./Assignment-2/testcase/bc/test3.ll"};
 
-    SVFModule *svfModule = LLVMModuleSet::getLLVMModuleSet()->buildSVFModule(moduleNameVec);
+    LLVMModuleSet::getLLVMModuleSet()->buildSVFModule(moduleNameVec);
     LLVMModuleSet::getLLVMModuleSet()->dumpModulesToFile(".svf");
 
-    SVFIRBuilder builder(svfModule);
+    SVFIRBuilder builder;
     SVFIR *svfir = builder.build();
 
     CallGraph* callgraph = AndersenWaveDiff::createAndersenWaveDiff(svfir)->getCallGraph();
