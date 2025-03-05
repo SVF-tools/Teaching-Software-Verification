@@ -65,11 +65,11 @@ int main(int argc, char ** argv) {
     SVFIRBuilder builder;
     SVFIR *svfir = builder.build();
     // Dump pag
-    //svfir->dump(svfModule->getModuleIdentifier() + ".pag");
+    svfir->dump(svfir->getModuleIdentifier() + ".pag");
     /// ICFG
     ICFG *icfg = svfir->getICFG();
     // Dump icfg
-    //icfg->dump(svfModule->getModuleIdentifier() + ".icfg");
+    icfg->dump(svfir->getModuleIdentifier() + ".icfg");
 
     // iterate each SVFVar on SVFIR
     std::map<NodeID, std::string> svfVarMap;
