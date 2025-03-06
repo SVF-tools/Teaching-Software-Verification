@@ -59,6 +59,9 @@ int test1()
     Set<std::string> expected = {"START: 0->1->3->4->END"};
     assert(expected == traversal->getPaths() && "test1 failed!");
     std::cout << SVFUtil::sucMsg("test1 passed!") << std::endl;
+    SVF::LLVMModuleSet::releaseLLVMModuleSet();
+    SVF::SVFIR::releaseSVFIR();
+    NodeIDAllocator::unset();
     delete traversal;
     return 0;
 }
@@ -90,6 +93,7 @@ int test2()
     std::cout << SVFUtil::sucMsg("test2 passed!") << std::endl;
     SVF::LLVMModuleSet::releaseLLVMModuleSet();
     SVF::SVFIR::releaseSVFIR();
+    NodeIDAllocator::unset();
 
     delete traversal;
     return 0;
@@ -121,6 +125,7 @@ int test3()
     std::cout << SVFUtil::sucMsg("test3 passed!") << std::endl;
     SVF::LLVMModuleSet::releaseLLVMModuleSet();
     SVF::SVFIR::releaseSVFIR();
+    NodeIDAllocator::unset();
 
     delete traversal;
     return 0;
