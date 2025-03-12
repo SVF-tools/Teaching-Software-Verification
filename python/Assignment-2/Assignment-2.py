@@ -47,9 +47,8 @@ def test1():
     sinks = traversal.identify_sink()
     for src in sources:
         for sink in sinks:
-            for edge in src.get_out_edges():
-                traversal.dfs(edge, sink)
-    expected = {"START: 1->3->4->END"}
+            traversal.dfs(pysvf.IntraCFGEdge(None, src), sink)
+    expected = {"START: 0->1->3->4->END"}
     assert expected == traversal.get_paths(), "test1 failed!"
     print("test1 passed!")
     pysvf.release_pag()
@@ -62,9 +61,8 @@ def test2():
     sinks = traversal.identify_sink()
     for src in sources:
         for sink in sinks:
-            for edge in src.get_out_edges():
-                traversal.dfs(edge, sink)
-    expected = {"START: 3->7->8->9->1->5->6->2->10->11->1->5->6->2->12->13->14->15->END"}
+            traversal.dfs(pysvf.IntraCFGEdge(None, src), sink)
+    expected = {"START: 0->3->7->8->9->1->5->6->2->10->11->1->5->6->2->12->13->14->15->END"}
     assert expected == traversal.get_paths(), "test2 failed!"
     print("test2 passed!")
     pysvf.release_pag()
@@ -77,9 +75,8 @@ def test3():
     sinks = traversal.identify_sink()
     for src in sources:
         for sink in sinks:
-            for edge in src.get_out_edges():
-                traversal.dfs(edge, sink)
-    expected = {"START: 3->19->1->5->6->8->10->12->END", "START: 3->19->1->5->6->7->9->11->14->END"}
+            traversal.dfs(pysvf.IntraCFGEdge(None, src), sink)
+    expected = {"START: 0->3->19->1->5->6->8->10->12->END", "START: 0->3->19->1->5->6->7->9->11->14->END"}
     assert expected == traversal.get_paths(), "test3 failed!"
     print("test3 passed!")
     pysvf.release_pag()
