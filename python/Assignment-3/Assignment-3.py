@@ -55,7 +55,7 @@ class Z3Mgr:
             res = self.solver.check()
             assert res != z3.unsat, "unsatisfied constraints! Check your contradictory constraints added to the solver"
             model = self.solver.model()
-            return model.eval(e)
+            return model.eval(e, model_completion=True)
 
     def has_z3_expr(self, expr_name: str) -> bool:
         return expr_name in self.str_to_id_map
@@ -115,6 +115,21 @@ class Z3Mgr:
         self.var_id_to_expr_map = {}
         self.current_expr_idx = 0
         self.loc_to_val_map = z3.Const('loc2ValMap', self.loc_to_val_map.sort())
+
+
+    def print_expr_values(self):
+        print("-----------Var and Value-----------")
+        # for key,value
+        for nIter, Id in self.str_to_id_map.items():
+            e = self.get_eval_expr(self.get_z3_expr(nIter))
+            # convert IntNumRef to int, or convert ArithRef to int
+            value = e.as_long()
+            exprName = f"Var{Id} ({nIter})"
+            if self.is_virtual_mem_address(value):
+                print(f"{exprName}\t Value: {hex(value)}")
+            else:
+                print(f"{exprName}\t Value: {value}")
+        print("-----------------------------------------")
 
     '''
     /* A simple example
