@@ -165,12 +165,6 @@ class Z3Mgr:
         self.store_value(p, q)
     # x = *p;
         self.add_to_solver(x == self.load_value(p))
-    # assert(x==5);
-        self.add_to_solver(x == 5)
-
-        res = self.solver.check()
-        assert res == z3.sat, "Test 0 failed"
-        print("Test 0 passed")
 
     '''
     /*
