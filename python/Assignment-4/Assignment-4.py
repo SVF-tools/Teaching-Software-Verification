@@ -24,7 +24,6 @@ class Z3Mgr:
 
     def create_expr_for_obj_var(self, obj_var: pysvf.ObjVar) -> z3.ExprRef:
         base_obj_var = self.pag.get_base_object(obj_var.get_id())
-        #print("Create Obj",str(base_obj_var))
         if base_obj_var.is_const_data_or_agg_data() or base_obj_var.is_constant_array() or base_obj_var.is_constant_struct():
             if base_obj_var.is_const_int_obj_var():
                 obj = base_obj_var.as_const_int_obj_var()
@@ -88,7 +87,6 @@ class Z3Mgr:
         else:
             if not isinstance(svf_var, pysvf.ConstIntValVar) and not isinstance(svf_var, pysvf.ConstIntObjVar):
                 pass
-                #print(self.calling_ctx_to_str(calling_ctx))
             else:
                 pass
             name = "ValVar" + str(idx)
@@ -312,7 +310,6 @@ class Assignment4:
         assert edge.get_condition() and "not a conditional control-flow transfer?"
         cond = self.z3mgr.get_z3_expr(edge.get_condition().get_id(), self.calling_ctx)
         successor_val = self.z3mgr.get_z3_val(edge.get_successor_cond_value())
-        #print(f"@@ Analyzing Branch {edge}")
         self.z3mgr.solver.push()
         self.z3mgr.add_to_solver(cond == successor_val)
         res = self.z3mgr.solver.check()
@@ -412,23 +409,14 @@ class Assignment4:
             elif isinstance(stmt, pysvf.PhiStmt):
                 stmt = stmt.as_phi_stmt()
                 res = self.z3mgr.get_z3_expr(stmt.get_res_id(), self.calling_ctx)
-                if stmt.get_res_id() == 31:
-                    print("res: ", res)
                 opINodeFound = False
                 for i in range(stmt.get_op_var_num()):
                     assert src_node and "we don't have a predecessor ICFGNode?"
                     if src_node.get_fun().post_dominates(src_node.get_bb(), stmt.get_op_icfg_node(i).get_bb()):
                         ope = self.z3mgr.get_z3_expr(stmt.get_op_var(i).get_id(), self.calling_ctx)
-                        if stmt.get_res_id() == 31:
-                            print("PHI 31 ope: ", z3.simplify(ope))
                         self.z3mgr.add_to_solver(res == ope)
                         opINodeFound = True
-                    if stmt.get_res_id() == 31:
-                        print("phi idx:{}, srcbbid: {}, opbbid: {}".format(i, src_node.get_bb().get_id(), stmt.get_op_icfg_node(i).get_bb().get_id()))
-                        print(src_node.to_string())
                 assert opINodeFound and "predecessor ICFGNode of this PhiStmt not found?"
-                if stmt.get_res_id() == 31:
-                    print("PHI 31 res: ", self.z3mgr.get_eval_expr(res))
 
         return True
 
@@ -461,7 +449,5 @@ if __name__ == "__main__":
     bc_file = sys.argv[1]
     pag = pysvf.get_pag(bc_file)
     pag.get_icfg().dump("icfg")
-    # for i in range(pag.get_pag_node_num()):
-    #     print(pag.get_gnode(i))
     ass4 = Assignment4(pag)
     ass4.analyse()
