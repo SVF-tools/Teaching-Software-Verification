@@ -59,17 +59,17 @@ int main(int argc, char ** argv) {
             arg_num, arg_value, "SVF IR", "[options] <input-bitcode...>"
     );
 
-    SVFModule* svfModule = LLVMModuleSet::getLLVMModuleSet()->buildSVFModule(moduleNameVec);
+    LLVMModuleSet::getLLVMModuleSet()->buildSVFModule(moduleNameVec);
 
     /// Build Program Assignment Graph (SVFIR or PAG)
-    SVFIRBuilder builder(svfModule);
+    SVFIRBuilder builder;
     SVFIR *svfir = builder.build();
     // Dump pag
-    //svfir->dump(svfModule->getModuleIdentifier() + ".pag");
+    svfir->dump(svfir->getModuleIdentifier() + ".pag");
     /// ICFG
     ICFG *icfg = svfir->getICFG();
     // Dump icfg
-    //icfg->dump(svfModule->getModuleIdentifier() + ".icfg");
+    icfg->dump(svfir->getModuleIdentifier() + ".icfg");
 
     // iterate each SVFVar on SVFIR
     std::map<NodeID, std::string> svfVarMap;

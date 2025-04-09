@@ -26,6 +26,8 @@ RUN apt-get update
 RUN set -ex; \
     apt-get update && apt-get install -y python3.10-dev python3-pip \
             && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1;
+RUN python3 -m pip install pysvf -i https://test.pypi.org/simple/
+RUN python3 -m pip install z3-solver
 
 
 # Fetch and build SVF source.
@@ -34,7 +36,7 @@ WORKDIR ${HOME}
 RUN git clone "https://github.com/SVF-tools/SVF.git"
 WORKDIR ${HOME}/SVF
 RUN echo "Building SVF ..."
-RUN bash ./build.sh
+RUN bash ./build.sh debug dyn_lib
 
 # Export SVF, llvm, z3 paths
 ENV PATH=${HOME}/SVF/Release-build/bin:$PATH
@@ -49,5 +51,5 @@ WORKDIR ${HOME}
 RUN git clone "https://github.com/SVF-tools/Teaching-Software-Verification.git"
 WORKDIR ${HOME}/Teaching-Software-Verification
 RUN echo "Building SVF-Teaching example ..."
-RUN cmake -DCMAKE_BUILD_TYPE=MinSizeRel .
+RUN cmake -DCMAKE_BUILD_TYPE=Debug .
 RUN make -j8
