@@ -168,9 +168,9 @@ class Z3Mgr:
         print_val_map = {}
         obj_key_map = {}
         val_key_map = {}
-        for nIter in range(self.pag.get_pag_node_num()):
-            idx = nIter
-            node = self.pag.get_gnode(idx)
+        for nIter in self.pag:
+            idx = nIter[0]
+            node = nIter[1]
             e = self.get_eval_expr(self.get_z3_expr(idx, callingCtx))
             if z3.is_int_value(e) == False:
                 continue
@@ -229,6 +229,7 @@ class Assignment4:
 
         self.path = []
         self.visited = set()
+        self.assert_count = 0
 
     def get_z3mgr(self) -> Z3Mgr:
         return self.z3mgr
@@ -269,7 +270,7 @@ class Assignment4:
 
 
     def assert_checking(self, inode: pysvf.ICFGNode) -> bool:
-        assert_checked = 0
+        self.assert_count += 1
         callnode = inode
         assert callnode and self.is_assert_func(callnode.get_called_function().get_name()) and "last node is not an assert call?"
         print(f"## Analyzing {callnode}")
@@ -451,3 +452,6 @@ if __name__ == "__main__":
     pag.get_icfg().dump("icfg")
     ass4 = Assignment4(pag)
     ass4.analyse()
+    if ass4.assert_count == 0:
+        print("No assertion was checked!")
+        sys.exit(1)
