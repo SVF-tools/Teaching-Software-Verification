@@ -1,22 +1,22 @@
 import z3
 import sys
 class Z3Mgr:
-    def __init__(self, num_of_map_elems: int) -> None:
+    def __init__(self, numOfMapElems: int) -> None:
         self.ctx = z3.Context()
         self.solver = z3.Solver(ctx=self.ctx)
-        self.var_id_to_expr_map = {}
-        self.max_num_of_expr = num_of_map_elems
-        self.str_to_id_map = {}
-        self.current_expr_idx = 0
+        self.varIdToExprMap = {}
+        self.maxNumOfExpr = numOfMapElems
+        self.strToIdMap = {}
+        self.currentExprIdx = 0
 
         self.addressMark = 0x7f000000
 
-        index_sort = z3.IntSort(self.ctx)
-        element_sort = z3.IntSort(self.ctx)
-        array_sort = z3.ArraySort(index_sort, element_sort)
-        self.loc_to_val_map = z3.Const('loc2ValMap', array_sort)
+        indexSort = z3.IntSort(self.ctx)
+        elementSort = z3.IntSort(self.ctx)
+        arraySort = z3.ArraySort(indexSort, elementSort)
+        self.locToValMap = z3.Const('loc2ValMap', arraySort)
 
-    def store_value(self, loc: z3.ExprRef, value: z3.ExprRef) -> z3.ExprRef:
+    def storeValue(self, loc: z3.ExprRef, value: z3.ExprRef) -> z3.ExprRef:
         """
         Store a value at a memory location.
 
@@ -27,13 +27,13 @@ class Z3Mgr:
         Returns:
             Updated memory map expression
         """
-        deref = self.get_eval_expr(loc)
-        assert self.is_virtual_mem_address(deref.as_long()), "Pointer operand is not a physical address"
-        self.loc_to_val_map = z3.Store(self.loc_to_val_map, deref, value)
-        return self.loc_to_val_map
+        deref = self.getEvalExpr(loc)
+        assert self.isVirtualMemAddress(deref.as_long()), "Pointer operand is not a physical address"
+        self.locToValMap = z3.Store(self.locToValMap, deref, value)
+        return self.locToValMap
 
 
-    def load_value(self, loc: z3.ExprRef) -> z3.ExprRef:
+    def loadValue(self, loc: z3.ExprRef) -> z3.ExprRef:
         """
         Load a value from a memory location.
 
@@ -43,11 +43,11 @@ class Z3Mgr:
         Returns:
             Value stored at the location
         """
-        deref = self.get_eval_expr(loc)
-        assert self.is_virtual_mem_address(deref.as_long()), "Pointer operand is not a physical address"
-        return z3.Select(self.loc_to_val_map, deref)
+        deref = self.getEvalExpr(loc)
+        assert self.isVirtualMemAddress(deref.as_long()), "Pointer operand is not a physical address"
+        return z3.Select(self.locToValMap, deref)
 
-    def get_eval_expr(self, e: z3.ExprRef) -> z3.ExprRef:
+    def getEvalExpr(self, e: z3.ExprRef) -> z3.ExprRef:
         if isinstance(e, int):
             e = z3.IntVal(e, self.ctx)
             return e
@@ -57,75 +57,75 @@ class Z3Mgr:
             model = self.solver.model()
             return model.eval(e, model_completion=True)
 
-    def has_z3_expr(self, expr_name: str) -> bool:
-        return expr_name in self.str_to_id_map
-    def get_z3_expr(self, expr_name: str) -> z3.ExprRef:
-        if expr_name in self.str_to_id_map:
-            return self.var_id_to_expr_map[self.str_to_id_map[expr_name]]
+    def hasZ3Expr(self, exprName: str) -> bool:
+        return exprName in self.strToIdMap
+    def getZ3Expr(self, exprName: str) -> z3.ExprRef:
+        if exprName in self.strToIdMap:
+            return self.varIdToExprMap[self.strToIdMap[exprName]]
         else:
-            self.current_expr_idx += 1
-            self.str_to_id_map[expr_name] = self.current_expr_idx
-            expr = z3.Int(str(expr_name), ctx=self.ctx)
-            self.update_z3_expr(self.current_expr_idx, expr)
+            self.currentExprIdx += 1
+            self.strToIdMap[exprName] = self.currentExprIdx
+            expr = z3.Int(str(exprName), ctx=self.ctx)
+            self.updateZ3Expr(self.currentExprIdx, expr)
             return expr
 
-    def update_z3_expr(self, idx: int, target: z3.ExprRef) -> None:
-        if self.max_num_of_expr < idx + 1:
+    def updateZ3Expr(self, idx: int, target: z3.ExprRef) -> None:
+        if self.maxNumOfExpr < idx + 1:
             raise IndexError("idx out of bound for map access, increase map size!")
-        self.var_id_to_expr_map[idx] = target
-    def get_z3_val(self, val:int) -> z3.ExprRef:
+        self.varIdToExprMap[idx] = target
+    def getZ3Val(self, val:int) -> z3.ExprRef:
         return z3.IntVal(val, self.ctx)
 
-    def is_virtual_mem_address(self, val: int) -> bool:
+    def isVirtualMemAddress(self, val: int) -> bool:
         return val > 0 and (val & self.addressMark) == self.addressMark
-    def get_virtual_mem_address(self, idx: int) -> int:
+    def getVirtualMemAddress(self, idx: int) -> int:
         return self.addressMark + idx
 
-    def get_memobj_address(self, expr_name: str) -> z3.ExprRef:
-        self.get_z3_expr(expr_name)
-        if expr_name in self.str_to_id_map:
-            e = self.get_z3_val(self.get_virtual_mem_address(self.str_to_id_map[expr_name])).as_long()
-            self.update_z3_expr(self.str_to_id_map[expr_name], e)
+    def getMemObjAddress(self, exprName: str) -> z3.ExprRef:
+        self.getZ3Expr(exprName)
+        if exprName in self.strToIdMap:
+            e = self.getZ3Val(self.getVirtualMemAddress(self.strToIdMap[exprName])).as_long()
+            self.updateZ3Expr(self.strToIdMap[exprName], e)
             return e
         else:
             assert False, "Invalid memory object name"
 
-    def get_gepobj_address(self, base_expr: z3.ExprRef, offset: int) -> z3.ExprRef:
-        base_obj_name = str(base_expr)
-        if base_obj_name in self.str_to_id_map:
-            base_obj_id = self.str_to_id_map[base_obj_name]
-            gep_obj_id = base_obj_id + offset
-            if base_obj_id == gep_obj_id:
-                return base_expr
+    def getGepObjAddress(self, baseExpr: z3.ExprRef, offset: int) -> z3.ExprRef:
+        baseObjName = str(baseExpr)
+        if baseObjName in self.strToIdMap:
+            baseObjId = self.strToIdMap[baseObjName]
+            gepObjId = baseObjId + offset
+            if baseObjId == gepObjId:
+                return baseExpr
             else:
-                gep_obj_id += self.max_num_of_expr/2
-                e = self.get_z3_val(self.get_virtual_mem_address(gep_obj_id)).as_long()
-                self.update_z3_expr(gep_obj_id, e)
+                gepObjId += self.maxNumOfExpr/2
+                e = self.getZ3Val(self.getVirtualMemAddress(gepObjId)).as_long()
+                self.updateZ3Expr(gepObjId, e)
                 return e
         else:
             assert False, "Invalid base object name"
 
 
-    def add_to_solver(self, expr: z3.ExprRef) -> None:
+    def addToSolver(self, expr: z3.ExprRef) -> None:
         self.solver.add(expr)
 
-    def reset_solver(self) -> None:
+    def resetSolver(self) -> None:
         self.solver.reset()
-        self.str_to_id_map = {}
-        self.var_id_to_expr_map = {}
-        self.current_expr_idx = 0
-        self.loc_to_val_map = z3.Const('loc2ValMap', self.loc_to_val_map.sort())
+        self.strToIdMap = {}
+        self.varIdToExprMap = {}
+        self.currentExprIdx = 0
+        self.locToValMap = z3.Const('loc2ValMap', self.locToValMap.sort())
 
 
-    def print_expr_values(self):
+    def printExprValues(self):
         print("-----------Var and Value-----------")
         # for key,value
-        for nIter, Id in self.str_to_id_map.items():
-            e = self.get_eval_expr(self.get_z3_expr(nIter))
+        for nIter, Id in self.strToIdMap.items():
+            e = self.getEvalExpr(self.getZ3Expr(nIter))
             # convert IntNumRef to int, or convert ArithRef to int
             value = e.as_long()
             exprName = f"Var{Id} ({nIter})"
-            if self.is_virtual_mem_address(value):
+            if self.isVirtualMemAddress(value):
                 print(f"{exprName}\t Value: {hex(value)}")
             else:
                 print(f"{exprName}\t Value: {value}")
@@ -150,21 +150,21 @@ class Z3Mgr:
     '''
     def test0(self):
     # int* p;
-        p = self.get_z3_expr("p")
+        p = self.getZ3Expr("p")
     # int q;
-        q = self.get_z3_expr("q")
+        q = self.getZ3Expr("q")
     # int* r;
-        r = self.get_z3_expr("r")
+        r = self.getZ3Expr("r")
     # int x;
-        x = self.get_z3_expr("x")
+        x = self.getZ3Expr("x")
     # p = malloc();
-        self.add_to_solver(p == self.get_memobj_address("p"))
+        self.addToSolver(p == self.getMemObjAddress("p"))
     # q = 5;
-        self.add_to_solver(q == 5)
+        self.addToSolver(q == 5)
     # *p = q;
-        self.store_value(p, q)
+        self.storeValue(p, q)
     # x = *p;
-        self.add_to_solver(x == self.load_value(p))
+        self.addToSolver(x == self.loadValue(p))
 
     '''
     /*
@@ -533,21 +533,21 @@ int main(int argv) {
 
 
 
-def check_negate_assert(z3_mgr, q):
+def checkNegateAssert(z3Mgr, q):
     """
     Check the negation of the assertion.
 
     Args:
-        z3_mgr: Instance of Z3Mgr
+        z3Mgr: Instance of Z3Mgr
         q: Assertion to check
 
     Returns:
         True if the negation of the assertion is unsatisfiable, False otherwise
     """
-    z3_mgr.solver.push()
-    z3_mgr.add_to_solver(z3.Not(q))
-    res = z3_mgr.solver.check() == z3.unsat
-    z3_mgr.solver.pop()
+    z3Mgr.solver.push()
+    z3Mgr.addToSolver(z3.Not(q))
+    res = z3Mgr.solver.check() == z3.unsat
+    z3Mgr.solver.pop()
     return res
 
 def main():
@@ -555,77 +555,77 @@ def main():
         print("Usage: python3 Assignment-3.py test1")
         return 1
 
-    z3_mgr = Z3Mgr(1000)
+    z3Mgr = Z3Mgr(1000)
     result = False
-    test_name = sys.argv[1]
+    testName = sys.argv[1]
 
-    if test_name == "test0":
-        z3_mgr.test0()
-        q = z3_mgr.get_z3_expr("x") == z3_mgr.get_z3_val(5)
-        res1 = check_negate_assert(z3_mgr, q)
-        res2 = z3_mgr.has_z3_expr("x") and z3_mgr.get_eval_expr(z3_mgr.get_z3_expr("x")).as_long() == 5
+    if testName == "test0":
+        z3Mgr.test0()
+        q = z3Mgr.getZ3Expr("x") == z3Mgr.getZ3Val(5)
+        res1 = checkNegateAssert(z3Mgr, q)
+        res2 = z3Mgr.hasZ3Expr("x") and z3Mgr.getEvalExpr(z3Mgr.getZ3Expr("x")).as_long() == 5
         result = res1 and res2
-    elif test_name == "test1":
-        z3_mgr.test1()
-        res2 = z3_mgr.has_z3_expr("b") and z3_mgr.get_eval_expr(z3_mgr.get_z3_expr("b")).as_long() == 1
-        q = z3_mgr.get_z3_expr("b") > z3_mgr.get_z3_val(0)
-        res1 = check_negate_assert(z3_mgr, q)
+    elif testName == "test1":
+        z3Mgr.test1()
+        res2 = z3Mgr.hasZ3Expr("b") and z3Mgr.getEvalExpr(z3Mgr.getZ3Expr("b")).as_long() == 1
+        q = z3Mgr.getZ3Expr("b") > z3Mgr.getZ3Val(0)
+        res1 = checkNegateAssert(z3Mgr, q)
         result = res1 and res2
-    elif test_name == "test2":
-        z3_mgr.test2()
-        res2 = z3_mgr.has_z3_expr("b") and z3_mgr.get_eval_expr(z3_mgr.get_z3_expr("b")).as_long() == 4
-        q = z3_mgr.get_z3_expr("b") > z3_mgr.get_z3_val(3)
-        res1 = check_negate_assert(z3_mgr, q)
+    elif testName == "test2":
+        z3Mgr.test2()
+        res2 = z3Mgr.hasZ3Expr("b") and z3Mgr.getEvalExpr(z3Mgr.getZ3Expr("b")).as_long() == 4
+        q = z3Mgr.getZ3Expr("b") > z3Mgr.getZ3Val(3)
+        res1 = checkNegateAssert(z3Mgr, q)
         result = res1 and res2
-    elif test_name == "test3":
-        z3_mgr.test3()
-        res2 = z3_mgr.has_z3_expr("q") and z3_mgr.get_eval_expr(z3_mgr.load_value(z3_mgr.get_z3_expr("q"))).as_long() == 10
-        q = z3_mgr.get_z3_expr("x") == z3_mgr.get_z3_val(10)
-        res1 = check_negate_assert(z3_mgr, q)
+    elif testName == "test3":
+        z3Mgr.test3()
+        res2 = z3Mgr.hasZ3Expr("q") and z3Mgr.getEvalExpr(z3Mgr.loadValue(z3Mgr.getZ3Expr("q"))).as_long() == 10
+        q = z3Mgr.getZ3Expr("x") == z3Mgr.getZ3Val(10)
+        res1 = checkNegateAssert(z3Mgr, q)
         result = res1 and res2
-    elif test_name == "test4":
-        z3_mgr.test4()
-        res2 = z3_mgr.has_z3_expr("a") and z3_mgr.get_eval_expr(z3_mgr.get_z3_expr("a")).as_long() == 10
-        q = z3_mgr.get_z3_expr("a") + z3_mgr.get_z3_expr("b") > z3_mgr.get_z3_val(20)
-        res1 = check_negate_assert(z3_mgr, q)
+    elif testName == "test4":
+        z3Mgr.test4()
+        res2 = z3Mgr.hasZ3Expr("a") and z3Mgr.getEvalExpr(z3Mgr.getZ3Expr("a")).as_long() == 10
+        q = z3Mgr.getZ3Expr("a") + z3Mgr.getZ3Expr("b") > z3Mgr.getZ3Val(20)
+        res1 = checkNegateAssert(z3Mgr, q)
         result = res1 and res2
-    elif test_name == "test5":
-        z3_mgr.test5()
-        res2 = z3_mgr.has_z3_expr("b") and z3_mgr.get_eval_expr(z3_mgr.get_z3_expr("b")).as_long() == 5
-        q = z3_mgr.get_z3_expr("b1") >= z3_mgr.get_z3_val(5)
-        res1 = check_negate_assert(z3_mgr, q)
+    elif testName == "test5":
+        z3Mgr.test5()
+        res2 = z3Mgr.hasZ3Expr("b") and z3Mgr.getEvalExpr(z3Mgr.getZ3Expr("b")).as_long() == 5
+        q = z3Mgr.getZ3Expr("b1") >= z3Mgr.getZ3Val(5)
+        res1 = checkNegateAssert(z3Mgr, q)
         result = res1 and res2
-    elif test_name == "test6":
-        z3_mgr.test6()
-        res2 = z3_mgr.has_z3_expr("p") and z3_mgr.get_eval_expr(z3_mgr.load_value(z3_mgr.get_z3_expr("p"))).as_long() == 5
-        q = z3_mgr.load_value(z3_mgr.get_z3_expr("p")) == z3_mgr.get_z3_val(5)
-        res1 = check_negate_assert(z3_mgr, q)
+    elif testName == "test6":
+        z3Mgr.test6()
+        res2 = z3Mgr.hasZ3Expr("p") and z3Mgr.getEvalExpr(z3Mgr.loadValue(z3Mgr.getZ3Expr("p"))).as_long() == 5
+        q = z3Mgr.loadValue(z3Mgr.getZ3Expr("p")) == z3Mgr.getZ3Val(5)
+        res1 = checkNegateAssert(z3Mgr, q)
         result = res1 and res2
-    elif test_name == "test7":
-        z3_mgr.test7()
-        res2 = z3_mgr.has_z3_expr("d") and z3_mgr.get_eval_expr(z3_mgr.get_z3_expr("d")).as_long() == 5
-        q = z3_mgr.get_z3_expr("d") == z3_mgr.get_z3_val(5)
-        res1 = check_negate_assert(z3_mgr, q)
+    elif testName == "test7":
+        z3Mgr.test7()
+        res2 = z3Mgr.hasZ3Expr("d") and z3Mgr.getEvalExpr(z3Mgr.getZ3Expr("d")).as_long() == 5
+        q = z3Mgr.getZ3Expr("d") == z3Mgr.getZ3Val(5)
+        res1 = checkNegateAssert(z3Mgr, q)
         result = res1 and res2
-    elif test_name == "test8":
-        z3_mgr.test8()
-        res2 = z3_mgr.has_z3_expr("a") and z3_mgr.get_eval_expr(z3_mgr.get_z3_expr("a")).as_long() == 10 and \
-               z3_mgr.has_z3_expr("p") and z3_mgr.get_eval_expr(
-            z3_mgr.load_value(z3_mgr.get_z3_expr("p"))).as_long() == 0
-        q = z3_mgr.load_value(z3_mgr.get_z3_expr("p")) == z3_mgr.get_z3_val(0)
-        res1 = check_negate_assert(z3_mgr, q)
+    elif testName == "test8":
+        z3Mgr.test8()
+        res2 = z3Mgr.hasZ3Expr("a") and z3Mgr.getEvalExpr(z3Mgr.getZ3Expr("a")).as_long() == 10 and \
+               z3Mgr.hasZ3Expr("p") and z3Mgr.getEvalExpr(
+            z3Mgr.loadValue(z3Mgr.getZ3Expr("p"))).as_long() == 0
+        q = z3Mgr.loadValue(z3Mgr.getZ3Expr("p")) == z3Mgr.getZ3Val(0)
+        res1 = checkNegateAssert(z3Mgr, q)
         result = res1 and res2
-    elif test_name == "test9":
-        z3_mgr.test9()
-        res2 = z3_mgr.has_z3_expr("z") and z3_mgr.get_eval_expr(z3_mgr.get_z3_expr("z")).as_long() == 15
-        q = z3_mgr.get_z3_expr("z") == z3_mgr.get_z3_val(15)
-        res1 = check_negate_assert(z3_mgr, q)
+    elif testName == "test9":
+        z3Mgr.test9()
+        res2 = z3Mgr.hasZ3Expr("z") and z3Mgr.getEvalExpr(z3Mgr.getZ3Expr("z")).as_long() == 15
+        q = z3Mgr.getZ3Expr("z") == z3Mgr.getZ3Val(15)
+        res1 = checkNegateAssert(z3Mgr, q)
         result = res1 and res2
-    elif test_name == "test10":
-        z3_mgr.test10()
-        res2 = z3_mgr.has_z3_expr("x") and z3_mgr.get_eval_expr(z3_mgr.get_z3_expr("x")).as_long() == 3
-        q = z3.And(z3_mgr.get_z3_expr("x") == z3_mgr.get_z3_val(3), z3_mgr.get_z3_expr("y") == z3_mgr.get_z3_val(2))
-        res1 = check_negate_assert(z3_mgr, q)
+    elif testName == "test10":
+        z3Mgr.test10()
+        res2 = z3Mgr.hasZ3Expr("x") and z3Mgr.getEvalExpr(z3Mgr.getZ3Expr("x")).as_long() == 3
+        q = z3.And(z3Mgr.getZ3Expr("x") == z3Mgr.getZ3Val(3), z3Mgr.getZ3Expr("y") == z3Mgr.getZ3Val(2))
+        res1 = checkNegateAssert(z3Mgr, q)
         result = res1 and res2
     else:
         print("Invalid test name")
@@ -634,10 +634,10 @@ def main():
     if result:
         print("test case passed!!")
     else:
-        print(f"The test-{test_name} assertion is unsatisfiable!!")
+        print(f"The test-{testName} assertion is unsatisfiable!!")
         assert result
 
-    z3_mgr.reset_solver()
+    z3Mgr.resetSolver()
     return 0
 
 if __name__ == '__main__':

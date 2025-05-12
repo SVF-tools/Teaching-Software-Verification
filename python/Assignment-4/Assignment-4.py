@@ -7,85 +7,66 @@ class Z3Mgr:
 
         self.ctx = z3.Context()
         self.solver = z3.Solver(ctx=self.ctx)
-        self.var_id_to_expr_map = {}
-        self.max_num_of_expr = svfir.get_pag_node_num()*10
-        self.current_expr_idx = 0
+        self.varIdToExprMap = {}
+        self.maxNumOfExpr = svfir.getPAGNodeNum()*10
+        self.currentExprIdx = 0
 
         self.addressMask = 0x7f000000
         self.flippedAddressMask = (self.addressMask^0xffffffff)
 
-        index_sort = z3.IntSort(self.ctx)
-        element_sort = z3.IntSort(self.ctx)
-        array_sort = z3.ArraySort(index_sort, element_sort)
-        self.loc_to_val_map = z3.Const('loc2ValMap', array_sort)
+        indexSort = z3.IntSort(self.ctx)
+        elementSort = z3.IntSort(self.ctx)
+        arraySort = z3.ArraySort(indexSort, elementSort)
+        self.locToValMap = z3.Const('loc2ValMap', arraySort)
 
-    def get_internal_id(self, addr: int) -> int:
+    def getInternalId(self, addr: int) -> int:
         return addr & self.flippedAddressMask
 
-    def create_expr_for_obj_var(self, obj_var: pysvf.ObjVar) -> z3.ExprRef:
-        base_obj_var = self.pag.get_base_object(obj_var.get_id())
-        if base_obj_var.is_const_data_or_agg_data() or base_obj_var.is_constant_array() or base_obj_var.is_constant_struct():
-            if base_obj_var.is_const_int_obj_var():
-                obj = base_obj_var.as_const_int_obj_var()
-                return z3.IntVal(obj.get_sext_value(), self.ctx)
-            elif base_obj_var.as_const_data().is_const_fp_obj_var():
-                obj = base_obj_var.as_const_data().as_const_fp_obj_var()
-                return z3.IntVal(obj.get_fp_value(), self.ctx)
-            elif base_obj_var.is_global_obj_var():
-                return z3.IntVal(self.get_virtual_mem_address(obj_var.get_id()), self.ctx)
-            elif base_obj_var.is_constant_array() or base_obj_var.is_constant_struct():
+    def createExprForObjVar(self, objVar: pysvf.ObjVar) -> z3.ExprRef:
+        baseObjVar = self.pag.getBaseObject(objVar.getId())
+        if baseObjVar.isConstDataOrAggData() or baseObjVar.isConstantArray() or baseObjVar.isConstantStruct():
+            if baseObjVar.isConstIntObjVar():
+                obj = baseObjVar.asConstIntObjVar()
+                return z3.IntVal(obj.getSExtValue(), self.ctx)
+            elif baseObjVar.asConstData().isConstFPObjVar():
+                obj = baseObjVar.asConstData().asConstFPObjVar()
+                return z3.IntVal(obj.getFPValue(), self.ctx)
+            elif baseObjVar.isGlobalObjVar():
+                return z3.IntVal(self.getVirtualMemAddress(objVar.getId()), self.ctx)
+            elif baseObjVar.isConstantArray() or baseObjVar.isConstantStruct():
                 assert False, "implement this part"
             else:
                 assert False, "what other types of values we have?"
         else:
-            return z3.IntVal(self.get_virtual_mem_address(obj_var.get_id()), self.ctx)
+            return z3.IntVal(self.getVirtualMemAddress(objVar.getId()), self.ctx)
 
 
-    def store_value(self, loc: z3.ExprRef, value: z3.ExprRef) -> z3.ExprRef:
-        """
-        Store a value at a memory location.
-
-        Args:
-            loc: Memory location expression
-            value: Value expression to store
-
-        Returns:
-            Updated memory map expression
-        """
-        deref = self.get_eval_expr(loc)
-        assert self.is_virtual_mem_address(deref.as_long()), "Pointer operand is not a physical address"
-        self.loc_to_val_map = z3.Store(self.loc_to_val_map, deref, value)
-        return self.loc_to_val_map
+    def storeValue(self, loc: z3.ExprRef, value: z3.ExprRef) -> z3.ExprRef:
+        deref = self.getEvalExpr(loc)
+        assert self.isVirtualMemAddress(deref.as_long()), "Pointer operand is not a physical address"
+        self.locToValMap = z3.Store(self.locToValMap, deref, value)
+        return self.locToValMap
 
 
-    def load_value(self, loc: z3.ExprRef) -> z3.ExprRef:
-        """
-        Load a value from a memory location.
+    def loadValue(self, loc: z3.ExprRef) -> z3.ExprRef:
+        deref = self.getEvalExpr(loc)
+        assert self.isVirtualMemAddress(deref.as_long()), "Pointer operand is not a physical address"
+        return z3.Select(self.locToValMap, deref)
 
-        Args:
-            loc: Memory location expression
-
-        Returns:
-            Value stored at the location
-        """
-        deref = self.get_eval_expr(loc)
-        assert self.is_virtual_mem_address(deref.as_long()), "Pointer operand is not a physical address"
-        return z3.Select(self.loc_to_val_map, deref)
-
-    def get_eval_expr(self, e: z3.ExprRef) -> z3.ExprRef:
+    def getEvalExpr(self, e: z3.ExprRef) -> z3.ExprRef:
         res = self.solver.check()
         assert res != z3.unsat, "unsatisfied constraints! Check your contradictory constraints added to the solver"
         model = self.solver.model()
         return model.eval(e)
 
 
-    def get_z3_expr(self, idx: int, calling_ctx: list) -> z3.ExprRef:
-        assert self.get_internal_id(idx) == idx, "idx cannot be addressValue > 0x7f000000."
-        svf_var = self.pag.get_gnode(idx)
-        if svf_var.is_obj_var():
-            return self.create_expr_for_obj_var(svf_var.as_obj_var())
+    def getZ3Expr(self, idx: int, callingCtx: list) -> z3.ExprRef:
+        assert self.getInternalId(idx) == idx, "idx cannot be addressValue > 0x7f000000."
+        svfVar = self.pag.getGNode(idx)
+        if svfVar.isObjVar():
+            return self.createExprForObjVar(svfVar.asObjVar())
         else:
-            if not isinstance(svf_var, pysvf.ConstIntValVar) and not isinstance(svf_var, pysvf.ConstIntObjVar):
+            if not isinstance(svfVar, pysvf.ConstIntValVar) and not isinstance(svfVar, pysvf.ConstIntObjVar):
                 pass
             else:
                 pass
@@ -93,37 +74,36 @@ class Z3Mgr:
             return z3.Int(name, self.ctx)
 
 
-    def calling_ctx_to_str(self, calling_ctx: list) -> str:
+    def callingCtxToStr(self, callingCtx: list) -> str:
         rawstr = ""
         rawstr += "ctx:[ "
-        for node in calling_ctx:
-            rawstr += str(node.get_id()) + " "
+        for node in callingCtx:
+            rawstr += str(node.getId()) + " "
         rawstr += "] "
         return rawstr
 
 
-    def update_z3_expr(self, idx: int, target: z3.ExprRef) -> None:
-        if self.max_num_of_expr < idx + 1:
+    def updateZ3Expr(self, idx: int, target: z3.ExprRef) -> None:
+        if self.maxNumOfExpr < idx + 1:
             raise IndexError("idx out of bound for map access, increase map size!")
-        self.var_id_to_expr_map[idx] = target
+        self.varIdToExprMap[idx] = target
 
-    def get_z3_val(self, val:int) -> z3.ExprRef:
+    def getZ3Val(self, val:int) -> z3.ExprRef:
         return z3.IntVal(val, self.ctx)
 
-    def is_virtual_mem_address(self, val: int) -> bool:
+    def isVirtualMemAddress(self, val: int) -> bool:
         return val > 0 and (val & self.addressMask) == self.addressMask
 
-    def get_virtual_mem_address(self, idx: int) -> int:
+    def getVirtualMemAddress(self, idx: int) -> int:
         return self.addressMask + idx
 
-    def get_memobj_address(self, addr: int) -> z3.ExprRef:
-        #print(addr)
-        obj_idx = self.get_internal_id(addr)
-        assert(self.pag.get_gnode(obj_idx).is_obj_var()), "Invalid memory object index"
-        return self.create_expr_for_obj_var(self.pag.get_gnode(obj_idx).as_obj_var())
+    def getMemobjAddress(self, addr: int) -> z3.ExprRef:
+        objIdx = self.getInternalId(addr)
+        assert(self.pag.getGNode(objIdx).isObjVar()), "Invalid memory object index"
+        return self.createExprForObjVar(self.pag.getGNode(objIdx).asObjVar())
 
-    def z3_expr_to_num_value(self, expr: z3.ExprRef) -> int:
-        val = z3.simplify(self.get_eval_expr(expr))
+    def z3ExprToNumValue(self, expr: z3.ExprRef) -> int:
+        val = z3.simplify(self.getEvalExpr(expr))
         if isinstance(val, z3.IntNumRef):
             return val.as_long()
         elif val.is_numeral():
@@ -132,155 +112,158 @@ class Z3Mgr:
             assert False, "this expression is not numeral"
             sys.exit(1)
 
-    def get_gepobj_address(self, base_expr: z3.ExprRef, offset: int) -> z3.ExprRef:
+    def getGepobjAddress(self, baseExpr: z3.ExprRef, offset: int) -> z3.ExprRef:
 
-        obj = self.get_internal_id(self.z3_expr_to_num_value(base_expr))
-        assert(self.pag.get_gnode(obj).is_obj_var()), "Fail to get the base object address!"
-        gep_obj = self.pag.get_gep_obj_var(obj, offset)
-        if obj == gep_obj:
-            return self.create_expr_for_obj_var(self.pag.get_gnode(obj).as_obj_var())
+        obj = self.getInternalId(self.z3ExprToNumValue(baseExpr))
+        assert(self.pag.getGNode(obj).isObjVar()), "Fail to get the base object address!"
+        gepObj = self.pag.getGepObjVar(obj, offset)
+        if obj == gepObj:
+            return self.createExprForObjVar(self.pag.getGNode(obj).asObjVar())
         else:
-            return self.create_expr_for_obj_var(self.pag.get_gnode(gep_obj).as_gep_obj_var())
+            return self.createExprForObjVar(self.pag.getGNode(gepObj).asGepObjVar())
 
 
-    def get_gep_offset(self, gep: pysvf.GepStmt, callingCtx: list) -> int:
-        if len(gep.get_offset_var_and_gep_type_pair_vec()) == 0:
-            return gep.get_constant_struct_fld_idx()
-        total_offset = 0
-        for i in range(len(gep.get_offset_var_and_gep_type_pair_vec()) - 1, -1, -1):
-            var = gep.get_offset_var_and_gep_type_pair_vec()[i][0]
-            type = gep.get_offset_var_and_gep_type_pair_vec()[i][1]
+    def getGepOffset(self, gep: pysvf.GepStmt, callingCtx: list) -> int:
+        if len(gep.getOffsetVarAndGepTypePairVec()) == 0:
+            return gep.getConstantStructFldIdx()
+        totalOffset = 0
+        for i in range(len(gep.getOffsetVarAndGepTypePairVec()) - 1, -1, -1):
+            var = gep.getOffsetVarAndGepTypePairVec()[i][0]
+            type = gep.getOffsetVarAndGepTypePairVec()[i][1]
             offset = 0
-            if var.is_const_int_val_var():
-                offset = var.as_const_int_val_var().get_sext_value()
+            if var.isConstIntValVar():
+                offset = var.asConstIntValVar().getSExtValue()
             else:
-                offset = self.get_eval_expr(self.get_z3_expr(var.get_id(), callingCtx)).as_long()
+                offset = self.getEvalExpr(self.getZ3Expr(var.getId(), callingCtx)).as_long()
             if type is None:
-                total_offset += offset
+                totalOffset += offset
                 continue
-            if type.is_pointer_type():
-                total_offset += offset * self.pag.get_num_of_flatten_elements(gep.get_src_pointee_type())
+            if type.isPointerType():
+                totalOffset += offset * self.pag.getNumOfFlattenElements(gep.getSrcPointeeType())
             else:
-                total_offset += self.pag.get_flattened_elem_idx(type, offset)
-        return total_offset
+                totalOffset += self.pag.getFlattenedElemIdx(type, offset)
+        return totalOffset
 
-    def print_expr_values(self, callingCtx:list):
-        print_val_map = {}
-        obj_key_map = {}
-        val_key_map = {}
+    def printExprValues(self, callingCtx: list):
+        printValMap = {}
+        objKeyMap = {}
+        valKeyMap = {}
         for nIter in self.pag:
             idx = nIter[0]
             node = nIter[1]
-            e = self.get_eval_expr(self.get_z3_expr(idx, callingCtx))
+            e = self.getEvalExpr(self.getZ3Expr(idx, callingCtx))
             if z3.is_int_value(e) == False:
                 continue
             if isinstance(node, pysvf.ValVar):
-                if self.is_virtual_mem_address(e.as_long()):
+                if self.isVirtualMemAddress(e.as_long()):
                     valstr = "\t Value: " + hex(e.as_long()) + "\n"
                 else:
                     valstr = "\t Value: " + str(e.as_long()) + "\n"
-                print_val_map["ValVar" + str(idx)] = valstr
-                val_key_map[idx] = "ValVar" + str(idx)
+                printValMap["ValVar" + str(idx)] = valstr
+                valKeyMap[idx] = "ValVar" + str(idx)
             else:
-                if self.is_virtual_mem_address(e.as_long()):
-                    stored_value = self.get_eval_expr(self.load_value(e))
-                    if z3.is_int_value(stored_value) == False:
+                if self.isVirtualMemAddress(e.as_long()):
+                    storedValue = self.getEvalExpr(self.loadValue(e))
+                    if z3.is_int_value(storedValue) == False:
                         continue
-                    if isinstance(stored_value, z3.ExprRef):
-                        if self.is_virtual_mem_address(stored_value.as_long()):
-                            valstr = "\t Value: " + hex(stored_value.as_long()) + "\n"
+                    if isinstance(storedValue, z3.ExprRef):
+                        if self.isVirtualMemAddress(storedValue.as_long()):
+                            valstr = "\t Value: " + hex(storedValue.as_long()) + "\n"
                         else:
-                            valstr = "\t Value: " + str(stored_value.as_long()) + "\n"
+                            valstr = "\t Value: " + str(storedValue.as_long()) + "\n"
                     else:
                         valstr = "\t Value: NULL" + "\n"
                 else:
                     valstr = "\t Value: NULL" + "\n"
-                print_val_map["ObjVar" + str(idx) + " (0x" + hex(idx) + ") "] = valstr
-                obj_key_map[idx] = "ObjVar" + str(idx) + " (0x" + hex(idx) + ") "
+                printValMap["ObjVar" + str(idx) + " (0x" + hex(idx) + ") "] = valstr
+                objKeyMap[idx] = "ObjVar" + str(idx) + " (0x" + hex(idx) + ") "
         print("\n-----------SVFVar and Value-----------")
-        for idx, key in obj_key_map.items():
-            val = print_val_map[key].strip()
+        for idx, key in objKeyMap.items():
+            val = printValMap[key].strip()
             label = f"ObjVar{idx} (0x{idx:x})"
             print(f"{label:<30} {val}")
 
-        for idx, key in val_key_map.items():
-            val = print_val_map[key].strip()
+        for idx, key in valKeyMap.items():
+            val = printValMap[key].strip()
             label = f"ValVar{idx}"
             print(f"{label:<30} {val}")
         print("-----------------------------------------")
 
-    def add_to_solver(self, expr: z3.ExprRef) -> None:
+    def addToSolver(self, expr: z3.ExprRef) -> None:
         self.solver.add(expr)
 
-    def reset_solver(self) -> None:
+    def resetSolver(self) -> None:
         self.solver.reset()
-        self.var_id_to_expr_map = {}
-        self.current_expr_idx = 0
-        self.loc_to_val_map = z3.Const('loc2ValMap', self.loc_to_val_map.sort())
+        self.varIdToExprMap = {}
+        self.currentExprIdx = 0
+        self.locToValMap = z3.Const('loc2ValMap', self.locToValMap.sort())
 
 
 class Assignment4:
     def __init__(self, svfir: pysvf.SVFIR) -> None:
         self.svfir = svfir
-        self.icfg = self.svfir.get_icfg()
+        self.icfg = self.svfir.getICFG()
         self.z3mgr = Z3Mgr(svfir)
-        self.calling_ctx = []
+        self.callingCtx = []
         self.paths = []
 
         self.path = []
         self.visited = set()
-        self.assert_count = 0
+        self.assertCount = 0
 
-    def get_z3mgr(self) -> Z3Mgr:
+    def getZ3Mgr(self) -> Z3Mgr:
         return self.z3mgr
 
-    def identify_source(self) -> list:
-        return [self.icfg.get_global_icfg_node()]
+    def identifySource(self) -> list:
+        return [self.icfg.getGlobalICFGNode()]
 
-    def identify_sink(self) -> list:
+    def identifySink(self) -> list:
         res = []
-        cs = self.svfir.get_call_sites()
+        cs = self.svfir.getCallSites()
         for c in cs:
-            func_name = c.get_called_function().get_name()
-            if func_name == "assert" or func_name == "svf_assert" or func_name == "sink":
+            funcName = c.getCalledFunction().getName()
+            if funcName == "assert" or funcName == "svf_assert" or funcName == "sink":
                 res.append(c)
         return res
 
-    def is_assert_func(self, func_name: str) -> bool:
-        return func_name == "assert" or func_name == "svf_assert" or func_name == "sink"
+    def isAssertFunc(self, funcName: str) -> bool:
+        return funcName == "assert" or funcName == "svf_assert" or funcName == "sink"
 
-    def reset_solver(self) -> None:
-        self.z3mgr.reset_solver()
-        self.calling_ctx = []
+    def resetSolver(self) -> None:
+        self.z3mgr.resetSolver()
+        self.callingCtx = []
 
 
+    def collectAndTranslatePath(self, path: list) -> None:
+        # TODO: Implement path collection and translation
+        pass
 
-    def translate_path(self, path: list) -> bool:
+    def translatePath(self, path: list) -> bool:
         for edge in path:
-            if edge.is_intra_cfg_edge():
-                if not self.handle_intra(edge):
+            if edge.isIntraCFGEdge():
+                if not self.handleIntra(edge):
                     return False
-            elif edge.is_call_cfg_edge():
-                self.handle_call(edge)
-            elif edge.is_ret_cfg_edge():
-                self.handle_ret(edge)
+            elif edge.isCallCFGEdge():
+                self.handleCall(edge)
+            elif edge.isRetCFGEdge():
+                self.handleRet(edge)
             else:
                 assert False, "what other edges we have?"
         return True
 
 
-    def assert_checking(self, inode: pysvf.ICFGNode) -> bool:
-        self.assert_count += 1
+    def assertChecking(self, inode: pysvf.ICFGNode) -> bool:
+        self.assertCount += 1
         callnode = inode
-        assert callnode and self.is_assert_func(callnode.get_called_function().get_name()) and "last node is not an assert call?"
+        assert callnode and self.isAssertFunc(callnode.getCalledFunction().getName()) and "last node is not an assert call?"
         print(f"## Analyzing {callnode}")
-        arg0 = self.z3mgr.get_z3_expr(callnode.get_actual_parms()[0].get_id(), self.calling_ctx)
+        arg0 = self.z3mgr.getZ3Expr(callnode.getActualParms()[0].getId(), self.callingCtx)
         self.z3mgr.solver.push()
-        self.z3mgr.add_to_solver(arg0 == self.z3mgr.get_z3_val(0))
+        self.z3mgr.addToSolver(arg0 == self.z3mgr.getZ3Val(0))
 
         if self.z3mgr.solver.check() != z3.unsat:
             self.z3mgr.solver.pop()
-            self.z3mgr.print_expr_values(self.calling_ctx)
+            self.z3mgr.printExprValues(self.callingCtx)
             ss = f"The assertion is unsatisfiable!! ({inode})"
             ss += f"Counterexample: {self.z3mgr.solver.model()}"
             print(ss)
@@ -288,31 +271,35 @@ class Assignment4:
             assert False
         else:
             self.z3mgr.solver.pop()
-            self.z3mgr.print_expr_values(self.calling_ctx)
+            self.z3mgr.printExprValues(self.callingCtx)
             print(self.z3mgr.solver)
             ss = f"The assertion is successfully verified!! ({inode})"
             print(ss)
             return True
 
-    def push_calling_ctx(self, c: pysvf.ICFGNode) -> None:
-        self.calling_ctx.append(c)
+    def pushCallingCtx(self, c: pysvf.ICFGNode) -> None:
+        self.callingCtx.append(c)
 
-    def pop_calling_ctx(self) -> None:
-        self.calling_ctx.pop()
+    def popCallingCtx(self) -> None:
+        self.callingCtx.pop()
 
-    def analyse(self) -> None:
-        for src in self.identify_source():
-            assert isinstance(src, pysvf.GlobalICFGNode) and "reachability should start with GlobalICFGNode!"
-            for sink in self.identify_sink():
-                self.reachability(pysvf.IntraCFGEdge(None, src), sink)
-                self.reset_solver()
 
-    def handle_branch(self, edge: pysvf.IntraCFGEdge) -> bool:
-        assert edge.get_condition() and "not a conditional control-flow transfer?"
-        cond = self.z3mgr.get_z3_expr(edge.get_condition().get_id(), self.calling_ctx)
-        successor_val = self.z3mgr.get_z3_val(edge.get_successor_cond_value())
+    def handleCall(self, edge: pysvf.CallCFGEdge) -> None:
+        # TODO: Implement handling of function calls
+        pass
+
+
+    def handleRet(self, edge: pysvf.RetCFGEdge) -> None:
+        # TODO: Implement handling of function returns
+        pass
+
+
+    def handleBranch(self, edge: pysvf.IntraCFGEdge) -> bool:
+        assert edge.getCondition() and "not a conditional control-flow transfer?"
+        cond = self.z3mgr.getZ3Expr(edge.getCondition().getId(), self.callingCtx)
+        successorVal = self.z3mgr.getZ3Val(edge.getSuccessorCondValue())
         self.z3mgr.solver.push()
-        self.z3mgr.add_to_solver(cond == successor_val)
+        self.z3mgr.addToSolver(cond == successorVal)
         res = self.z3mgr.solver.check()
         self.z3mgr.solver.pop()
         if res == z3.unsat:
@@ -320,27 +307,17 @@ class Assignment4:
             return False
         else:
             print("This conditional ICFGEdge is feasible")
-            self.z3mgr.add_to_solver(cond == successor_val)
+            self.z3mgr.addToSolver(cond == successorVal)
             return True
 
-
-    # TODO: Implement handling of function calls
-    def handle_call(self, edge: pysvf.CallCFGEdge) -> None:
-        pass
-
-
-    # TODO: Implement handling of function returns
-    def handle_ret(self, edge: pysvf.RetCFGEdge) -> None:
-        pass
-
-    def handle_intra(self, edge: pysvf.IntraCFGEdge) -> bool:
-        if edge.get_condition():
-            if self.handle_branch(edge) is False:
+    def handleIntra(self, edge: pysvf.IntraCFGEdge) -> bool:
+        if edge.getCondition():
+            if self.handleBranch(edge) is False:
                 return False
 
-        dst_node = edge.get_dst()
-        src_node = edge.get_src()
-        for stmt in dst_node.get_svf_stmts():
+        dstNode = edge.getDstNode()
+        srcNode = edge.getSrcNode()
+        for stmt in dstNode.getSVFStmts():
             if isinstance(stmt, pysvf.AddrStmt):
                 # TODO: Implement handling (1) AddrStmt
                 pass
@@ -357,101 +334,94 @@ class Assignment4:
                 # TODO: Implement handling (5) GepStmt
                 pass
             elif isinstance(stmt, pysvf.CmpStmt):
-                stmt = stmt.as_cmp_stmt()
-                op0 = self.z3mgr.get_z3_expr(stmt.get_op_var(0).get_id(), self.calling_ctx)
-                op1 = self.z3mgr.get_z3_expr(stmt.get_op_var(1).get_id(), self.calling_ctx)
-                res = self.z3mgr.get_z3_expr(stmt.get_res_id(), self.calling_ctx)
-                predicate = stmt.get_predicate()
+                stmt = stmt.asCmpStmt()
+                op0 = self.z3mgr.getZ3Expr(stmt.getOpVar(0).getId(), self.callingCtx)
+                op1 = self.z3mgr.getZ3Expr(stmt.getOpVar(1).getId(), self.callingCtx)
+                res = self.z3mgr.getZ3Expr(stmt.getResId(), self.callingCtx)
+                predicate = stmt.getPredicate()
                 if predicate == pysvf.Predicate.ICMP_EQ:
-                    self.z3mgr.add_to_solver(res == z3.If(op0 == op1, 1, 0))
+                    self.z3mgr.addToSolver(res == z3.If(op0 == op1, 1, 0))
                 elif predicate == pysvf.Predicate.ICMP_NE:
-                    self.z3mgr.add_to_solver(res == z3.If(op0 != op1, 1, 0))
+                    self.z3mgr.addToSolver(res == z3.If(op0 != op1, 1, 0))
                 elif predicate == pysvf.Predicate.ICMP_UGT or predicate == pysvf.Predicate.ICMP_SGT:
-                    self.z3mgr.add_to_solver(res == z3.If(op0 > op1, 1, 0))
+                    self.z3mgr.addToSolver(res == z3.If(op0 > op1, 1, 0))
                 elif predicate == pysvf.Predicate.ICMP_UGE or predicate == pysvf.Predicate.ICMP_SGE:
-                    self.z3mgr.add_to_solver(res == z3.If(op0 >= op1, 1, 0))
+                    self.z3mgr.addToSolver(res == z3.If(op0 >= op1, 1, 0))
                 elif predicate == pysvf.Predicate.ICMP_ULT or predicate == pysvf.Predicate.ICMP_SLT:
-                    self.z3mgr.add_to_solver(res == z3.If(op0 < op1, 1, 0))
+                    self.z3mgr.addToSolver(res == z3.If(op0 < op1, 1, 0))
                 elif predicate == pysvf.Predicate.ICMP_ULE or predicate == pysvf.Predicate.ICMP_SLE:
-                    self.z3mgr.add_to_solver(res == z3.If(op0 <= op1, 1, 0))
+                    self.z3mgr.addToSolver(res == z3.If(op0 <= op1, 1, 0))
                 else:
                     assert False, "implement this part"
             elif isinstance(stmt, pysvf.BinaryOPStmt):
-                stmt = stmt.as_binary_op_stmt()
-                op0 = self.z3mgr.get_z3_expr(stmt.get_op_var(0).get_id(), self.calling_ctx)
-                op1 = self.z3mgr.get_z3_expr(stmt.get_op_var(1).get_id(), self.calling_ctx)
-                res = self.z3mgr.get_z3_expr(stmt.get_res_id(), self.calling_ctx)
-                opcode = stmt.get_op()
+                stmt = stmt.asBinaryOpStmt()
+                op0 = self.z3mgr.getZ3Expr(stmt.getOpVar(0).getId(), self.callingCtx)
+                op1 = self.z3mgr.getZ3Expr(stmt.getOpVar(1).getId(), self.callingCtx)
+                res = self.z3mgr.getZ3Expr(stmt.getResId(), self.callingCtx)
+                opcode = stmt.getOpcode()
                 if opcode == pysvf.OpCode.Add:
-                    self.z3mgr.add_to_solver(res == op0 + op1)
+                    self.z3mgr.addToSolver(res == op0 + op1)
                 elif opcode == pysvf.OpCode.Sub:
-                    self.z3mgr.add_to_solver(res == op0 - op1)
+                    self.z3mgr.addToSolver(res == op0 - op1)
                 elif opcode == pysvf.OpCode.Mul:
-                    self.z3mgr.add_to_solver(res == op0 * op1)
+                    self.z3mgr.addToSolver(res == op0 * op1)
                 elif opcode == pysvf.OpCode.SDiv:
-                    self.z3mgr.add_to_solver(res == op0 / op1)
+                    self.z3mgr.addToSolver(res == op0 / op1)
                 elif opcode == pysvf.OpCode.SRem:
-                    self.z3mgr.add_to_solver(res == op0 % op1)
+                    self.z3mgr.addToSolver(res == op0 % op1)
                 elif opcode == pysvf.OpCode.Xor:
-                    self.z3mgr.add_to_solver(res == z3.bv2int(z3.int2bv(32, op0) ^ z3.int2bv(32, op1), 1))
+                    self.z3mgr.addToSolver(res == z3.bv2int(z3.int2bv(32, op0) ^ z3.int2bv(32, op1), 1))
                 elif opcode == pysvf.OpCode.And:
-                    self.z3mgr.add_to_solver(res == z3.bv2int(z3.int2bv(32, op0) & z3.int2bv(32, op1), 1))
+                    self.z3mgr.addToSolver(res == z3.bv2int(z3.int2bv(32, op0) & z3.int2bv(32, op1), 1))
                 elif opcode == pysvf.OpCode.Or:
-                    self.z3mgr.add_to_solver(res == z3.bv2int(z3.int2bv(32, op0) | z3.int2bv(32, op1), 1))
+                    self.z3mgr.addToSolver(res == z3.bv2int(z3.int2bv(32, op0) | z3.int2bv(32, op1), 1))
                 elif opcode == pysvf.OpCode.AShr:
-                    self.z3mgr.add_to_solver(res == z3.bv2int(z3.ashr(z3.int2bv(32, op0), z3.int2bv(32, op1)), 1))
+                    self.z3mgr.addToSolver(res == z3.bv2int(z3.ashr(z3.int2bv(32, op0), z3.int2bv(32, op1)), 1))
                 elif opcode == pysvf.OpCode.Shl:
-                    self.z3mgr.add_to_solver(res == z3.bv2int(z3.shl(z3.int2bv(32, op0), z3.int2bv(32, op1)), 1))
+                    self.z3mgr.addToSolver(res == z3.bv2int(z3.shl(z3.int2bv(32, op0), z3.int2bv(32, op1)), 1))
                 else:
                     assert False, "implement this part"
             elif isinstance(stmt, pysvf.BranchStmt):
                 pass
 
             elif isinstance(stmt, pysvf.PhiStmt):
-                stmt = stmt.as_phi_stmt()
-                res = self.z3mgr.get_z3_expr(stmt.get_res_id(), self.calling_ctx)
+                stmt = stmt.asPhiStmt()
+                res = self.z3mgr.getZ3Expr(stmt.getResId(), self.callingCtx)
                 opINodeFound = False
-                for i in range(stmt.get_op_var_num()):
-                    assert src_node and "we don't have a predecessor ICFGNode?"
-                    if src_node.get_fun().post_dominates(src_node.get_bb(), stmt.get_op_icfg_node(i).get_bb()):
-                        ope = self.z3mgr.get_z3_expr(stmt.get_op_var(i).get_id(), self.calling_ctx)
-                        self.z3mgr.add_to_solver(res == ope)
+                for i in range(stmt.getOpVarNum()):
+                    assert srcNode and "we don't have a predecessor ICFGNode?"
+                    if srcNode.getFun().postDominate(srcNode.getBB(), stmt.getOpICFGNode(i).getBB()):
+                        ope = self.z3mgr.getZ3Expr(stmt.getOpVar(i).getId(), self.callingCtx)
+                        self.z3mgr.addToSolver(res == ope)
                         opINodeFound = True
                 assert opINodeFound and "predecessor ICFGNode of this PhiStmt not found?"
 
         return True
 
 
-    '''
-    /// TODO: Implement your context-sensitive ICFG traversal here to traverse each program path (once for any loop) from
-    /// You will need to collect each path from src node to snk node and then add the path to the `paths` set by
-    /// calling the `collectAndTranslatePath` method which is then trigger the path translation.
-    /// This implementation, slightly different from Assignment-1, requires ICFGNode* as the first argument.
-    '''
-    def reachability(self, cur_edge: pysvf.IntraCFGEdge, sink: pysvf.ICFGNode) -> None:
-        pass
+    def analyse(self) -> None:
+        for src in self.identifySource():
+            assert isinstance(src, pysvf.GlobalICFGNode) and "reachability should start with GlobalICFGNode!"
+            for sink in self.identifySink():
+                self.reachability(pysvf.IntraCFGEdge(None, src), sink)
+                self.resetSolver()
 
-        '''
-    /// TODO: collect each path once this method is called during reachability analysis, and
-    /// Collect each program path from the entry to each assertion of the program. In this function,
-    /// you will need (1) add each path into the paths set, (2) call translatePath to convert each path into Z3 expressions.
-    /// Note that translatePath returns true if the path is feasible, false if the path is infeasible. (3) If a path is feasible,
-    /// you will need to call assertchecking to verify the assertion (which is the last ICFGNode of this path).
-    '''
-    def collect_and_translate_path(self, path: list) -> None:
+
+    def reachability(self, curEdge: pysvf.IntraCFGEdge, sink: pysvf.ICFGNode) -> None:
+        # TODO: Implement reachability analysis
         pass
 
 # Example usage
 if __name__ == "__main__":
-    # check sys.argv and print friendly error message if not enough arguments
     if len(sys.argv) != 2:
         print("Usage: python3 Assignment-4.py <path-to-bc-file>")
         sys.exit(1)
-    bc_file = sys.argv[1]
-    pag = pysvf.get_pag(bc_file)
-    pag.get_icfg().dump("icfg")
+    bcFile = sys.argv[1]
+    pag = pysvf.getPAG(bcFile)
+    pag.getICFG().dump("icfg")
+
     ass4 = Assignment4(pag)
     ass4.analyse()
-    if ass4.assert_count == 0:
+    if ass4.assertCount == 0:
         print("No assertion was checked!")
         sys.exit(1)
