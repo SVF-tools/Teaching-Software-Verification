@@ -41,7 +41,8 @@ class ICFGTraversal:
 
 def test1():
     bcFile = "./python/Assignment-2/testcase/bc/test1.ll"
-    pag = pysvf.getPAG(bcFile)
+    pysvf.buildSVFModule(bcFile)
+    pag = pysvf.getPAG()
     traversal = ICFGTraversal(pag)
     sources = traversal.identifySource()
     sinks = traversal.identifySink()
@@ -55,7 +56,8 @@ def test1():
 
 def test2():
     bcFile = "./python/Assignment-2/testcase/bc/test2.ll"
-    pag = pysvf.getPAG(bcFile)
+    pysvf.buildSVFModule(bcFile)
+    pag = pysvf.getPAG()
     traversal = ICFGTraversal(pag)
     sources = traversal.identifySource()
     sinks = traversal.identifySink()
@@ -69,7 +71,8 @@ def test2():
 
 def test3():
     bcFile = "./python/Assignment-2/testcase/bc/test3.ll"
-    pag = pysvf.getPAG(bcFile)
+    pysvf.buildSVFModule(bcFile)
+    pag = pysvf.getPAG()
     traversal = ICFGTraversal(pag)
     sources = traversal.identifySource()
     sinks = traversal.identifySink()

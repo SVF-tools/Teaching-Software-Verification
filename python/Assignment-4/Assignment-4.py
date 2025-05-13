@@ -413,11 +413,11 @@ class Assignment4:
 
 # Example usage
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
+    if len(sys.argv) < 2:
         print("Usage: python3 Assignment-4.py <path-to-bc-file>")
         sys.exit(1)
-    bcFile = sys.argv[1]
-    pag = pysvf.getPAG(bcFile)
+    pysvf.buildSVFModule(sys.argv[1:])
+    pag = pysvf.getPAG()
     pag.getICFG().dump("icfg")
 
     ass4 = Assignment4(pag)
