@@ -53,3 +53,7 @@ WORKDIR ${HOME}/Teaching-Software-Verification
 RUN echo "Building SVF-Teaching example ..."
 RUN cmake -DCMAKE_BUILD_TYPE=Debug .
 RUN make -j8
+
+EXPOSE 22
+
+CMD ["/usr/sbin/sshd", "-D"]
