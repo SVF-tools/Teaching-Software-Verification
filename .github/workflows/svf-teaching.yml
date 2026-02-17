@@ -7,7 +7,7 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     env:
-      XCODE_VERSION: '15.3.0'
+      XCODE_VERSION: '16.4.0'
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
