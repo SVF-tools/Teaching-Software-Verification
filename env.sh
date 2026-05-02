@@ -2,7 +2,7 @@
 
 PROJECTHOME=$(pwd)
 sysOS=`uname -s`
-MajorLLVMVer=18
+MajorLLVMVer=21
 LLVMVer=${MajorLLVMVer}.1.0
 
 LLVMHome="llvm-${LLVMVer}.obj"
