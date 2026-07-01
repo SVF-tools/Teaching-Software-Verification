@@ -28,6 +28,7 @@
 
 #include "Assignment-3.h"
 #include "Util/Options.h"
+#include "Util/SVFUtil.h"
 using namespace z3;
 using namespace SVF;
 using namespace SVFUtil;
