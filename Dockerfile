@@ -25,7 +25,18 @@ RUN apt-get install -y $build_deps $lib_deps
 # has been intermittently unreachable from CI runners (HTTP 504 / 2-minute timeouts
 # from add-apt-repository), and SVF does not pin a Python version.
 RUN apt-get install -y python3-dev python3-pip
-RUN python3 -m pip install --break-system-packages pysvf -i https://test.pypi.org/simple/
+RUN for attempt in $(seq 1 30); do \
+        if python3 -m pip install --break-system-packages pysvf \
+            --index-url https://test.pypi.org/simple/; then \
+            break; \
+        fi; \
+        if [ "$attempt" -eq 30 ]; then \
+            echo "pysvf is still unavailable on TestPyPI"; \
+            exit 1; \
+        fi; \
+        echo "Waiting for the pysvf wheel (attempt $attempt/30)"; \
+        sleep 30; \
+    done
 RUN python3 -m pip install --break-system-packages z3-solver
 
 
