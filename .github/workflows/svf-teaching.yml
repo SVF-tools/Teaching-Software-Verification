@@ -10,7 +10,7 @@ jobs:
       XCODE_VERSION: '16.4.0'
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-15]
     steps:
       # checkout the repo
       - uses: actions/checkout@v2
