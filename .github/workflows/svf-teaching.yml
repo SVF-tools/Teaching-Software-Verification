@@ -7,7 +7,7 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     env:
-      XCODE_VERSION: '16.4.0'
+      XCODE_VERSION: '26.6.0'
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
@@ -26,7 +26,9 @@ jobs:
           xcode-version: ${{ env.XCODE_VERSION }}
       - name: mac-setup-workaround
         if: runner.os == 'macOS'
-        run: ln -sfn /Applications/Xcode_${{ env.XCODE_VERSION }}.app /Applications/Xcode.app
+        run: |
+          xcode_path="$(xcode-select -p)"
+          ln -sfn "${xcode_path%/Contents/Developer}" /Applications/Xcode.app
       - name: ubuntu-setup
         if: runner.os == 'Linux'
         run: |
