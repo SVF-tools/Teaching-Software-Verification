@@ -2,8 +2,7 @@
 
 PROJECTHOME=$(pwd)
 sysOS=`uname -s`
-MajorLLVMVer=21
-LLVMVer=${MajorLLVMVer}.1.0
+LLVMVer=${LLVM_VERSION:-21.1.0}
 
 LLVMHome="llvm-${LLVMVer}.obj"
 Z3Home="z3.obj"
