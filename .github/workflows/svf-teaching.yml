@@ -3,6 +3,10 @@ name: svf-teaching
 # Triggers the workflow on push or pull request events
 on: [push, pull_request]
 
+env:
+  # Keep this version in sync with the prebuilt svf-lib package.
+  LLVM_VERSION: '21.1.0'
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
