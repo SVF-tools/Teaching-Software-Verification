@@ -38,8 +38,8 @@ int main(int argc, char** argv) {
     LLVMModuleSet::getLLVMModuleSet()->buildSVFModule(moduleNameVec);
     LLVMModuleSet::getLLVMModuleSet()->dumpModulesToFile(".svf");
 
-    SVFIRBuilder builder;
-    SVFIR* svfir = builder.build();
+    TeachingPAGBuilder builder;
+    PAG* svfir = builder.build();
 
     CallGraph* CallGraph = AndersenWaveDiff::createAndersenWaveDiff(svfir)->getCallGraph();
     builder.updateCallGraph(CallGraph);
@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
     sse->analyse();
 
     SVF::LLVMModuleSet::releaseLLVMModuleSet();
-    SVF::SVFIR::releaseSVFIR();
+    SVF::releaseTeachingPAG();
 
     delete[] arg_value;
     delete sse;

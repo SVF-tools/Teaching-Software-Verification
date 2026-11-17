@@ -29,11 +29,10 @@
 #define SOFTWARE_SECURITY_ANALYSIS_Z3SSEMGR_H
 
 #include "Z3Mgr.h"
-#include "SVFIR/SVFIR.h"
+#include "../SVFIR/SVFCompat.h"
 
 namespace SVF {
 
-	class SVFIR;
 	class ValVar;
 	class ObjVar;
 	class GepStmt;
@@ -42,7 +41,7 @@ namespace SVF {
         	typedef std::vector<const ICFGNode*> CallStack;
 	 public:
 		/// Constructor
-		Z3SSEMgr(SVFIR* ir);
+		Z3SSEMgr(PAG* ir);
 
 
         	std::string callingCtxToStr(const CallStack& callingCtx);
@@ -65,7 +64,7 @@ namespace SVF {
 		virtual void printExprValues(const CallStack& callingCtx);
 
 	 private:
-		SVFIR* svfir;
+		PAG* svfir;
 	};
 
 } // namespace SVF

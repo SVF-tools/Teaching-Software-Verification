@@ -29,7 +29,7 @@
 #ifndef SVF_ICFG_TRAVERSAL_H
 #define SVF_ICFG_TRAVERSAL_H
 
-#include "SVF-LLVM/SVFIRBuilder.h"
+#include "../SVFIR/SVFCompat.h"
 
 namespace SVF{
 
@@ -38,7 +38,7 @@ class ICFGTraversal
 public:
     typedef std::vector<const ICFGNode*> CallStack;
 
-    ICFGTraversal(SVFIR *s, ICFG *i) : svfir(s), icfg(i)
+    ICFGTraversal(PAG *s, ICFG *i) : svfir(s), icfg(i)
     {
     }
 
@@ -91,7 +91,7 @@ private:
     Set<std::string> paths;
 
 protected:
-    SVFIR *svfir;
+    PAG *svfir;
     Set<std::pair<const ICFGEdge *, CallStack > > visited;
     CallStack callstack;
     std::vector<const ICFGEdge *> path;
