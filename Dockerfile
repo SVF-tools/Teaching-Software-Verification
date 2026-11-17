@@ -45,10 +45,9 @@ ENV LLVM_DIR=${HOME}/SVF/llvm-$llvm_version.obj
 ENV Z3_DIR=${HOME}/SVF/z3.obj
 RUN ln -s ${Z3_DIR}/bin/libz3.so ${Z3_DIR}/bin/libz3.so.4
 
-# Fetch and build Teaching-Software-Verification example.
-WORKDIR ${HOME}
-RUN git clone "https://github.com/SVF-tools/Teaching-Software-Verification.git"
+# Build the checked-out Teaching-Software-Verification example.
 WORKDIR ${HOME}/Teaching-Software-Verification
+COPY . .
 RUN echo "Building SVF-Teaching example ..."
 RUN cmake -DCMAKE_BUILD_TYPE=Debug .
 RUN make -j8
