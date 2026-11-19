@@ -8,7 +8,7 @@ class Z3Mgr:
         self.ctx = z3.Context()
         self.solver = z3.Solver(ctx=self.ctx)
         self.varIdToExprMap = {}
-        self.maxNumOfExpr = svfir.getPAGNodeNum()*10
+        self.maxNumOfExpr = svfir.getSVFVarNum()*10
         self.currentExprIdx = 0
 
         self.addressMask = 0x7f000000
