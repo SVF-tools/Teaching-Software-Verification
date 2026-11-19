@@ -40,8 +40,8 @@ int test1()
     LLVMModuleSet::getLLVMModuleSet()->buildSVFModule(moduleNameVec);
     LLVMModuleSet::getLLVMModuleSet()->dumpModulesToFile(".svf");
 
-    SVFIRBuilder builder;
-    SVFIR *svfir = builder.build();
+    PAGBuilder builder;
+    PAG *svfir = builder.build();
 
     CallGraph* callgraph = AndersenWaveDiff::createAndersenWaveDiff(svfir)->getCallGraph();
     builder.updateCallGraph(callgraph);
@@ -55,12 +55,12 @@ int test1()
     traversal->analyse();
     
     SVF::LLVMModuleSet::releaseLLVMModuleSet();
-    SVF::SVFIR::releaseSVFIR();
+    SVF::PAG::releasePAG();
     Set<std::string> expected = {"START: 0->1->3->4->END"};
     assert(expected == traversal->getPaths() && "test1 failed!");
     std::cout << SVFUtil::sucMsg("test1 passed!") << std::endl;
     SVF::LLVMModuleSet::releaseLLVMModuleSet();
-    SVF::SVFIR::releaseSVFIR();
+    SVF::PAG::releasePAG();
     NodeIDAllocator::unset();
     delete traversal;
     return 0;
@@ -75,8 +75,8 @@ int test2()
     LLVMModuleSet::getLLVMModuleSet()->buildSVFModule(moduleNameVec);
     LLVMModuleSet::getLLVMModuleSet()->dumpModulesToFile(".svf");
 
-    SVFIRBuilder builder;
-    SVFIR *svfir = builder.build();
+    PAGBuilder builder;
+    PAG *svfir = builder.build();
 
     CallGraph* callgraph = AndersenWaveDiff::createAndersenWaveDiff(svfir)->getCallGraph();
     builder.updateCallGraph(callgraph);
@@ -92,7 +92,7 @@ int test2()
     assert(expected == traversal->getPaths() && "test2 failed!");
     std::cout << SVFUtil::sucMsg("test2 passed!") << std::endl;
     SVF::LLVMModuleSet::releaseLLVMModuleSet();
-    SVF::SVFIR::releaseSVFIR();
+    SVF::PAG::releasePAG();
     NodeIDAllocator::unset();
 
     delete traversal;
@@ -107,8 +107,8 @@ int test3()
     LLVMModuleSet::getLLVMModuleSet()->buildSVFModule(moduleNameVec);
     LLVMModuleSet::getLLVMModuleSet()->dumpModulesToFile(".svf");
 
-    SVFIRBuilder builder;
-    SVFIR *svfir = builder.build();
+    PAGBuilder builder;
+    PAG *svfir = builder.build();
 
     CallGraph* callgraph = AndersenWaveDiff::createAndersenWaveDiff(svfir)->getCallGraph();
     builder.updateCallGraph(callgraph);
@@ -124,7 +124,7 @@ int test3()
     assert(expected == traversal->getPaths() && "test3 failed!");
     std::cout << SVFUtil::sucMsg("test3 passed!") << std::endl;
     SVF::LLVMModuleSet::releaseLLVMModuleSet();
-    SVF::SVFIR::releaseSVFIR();
+    SVF::PAG::releasePAG();
     NodeIDAllocator::unset();
 
     delete traversal;
